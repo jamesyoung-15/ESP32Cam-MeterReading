@@ -1,13 +1,3 @@
-/**************************************************************
- *
- * This script tries to auto-detect the baud rate
- * and allows direct AT commands access
- *
- * TinyGSM Getting Started guide:
- *   https://tiny.cc/tinygsm-readme
- *
- **************************************************************/
-
 // Select your modem:
 // #define TINY_GSM_MODEM_SIM800
 #define TINY_GSM_MODEM_SIM7000
@@ -39,8 +29,6 @@
 TinyGsm modem(SerialAT);
 TinyGsmClient client(modem);
 
-// Module baud rate
-uint32_t rate = 0; // Set to 0 for Auto-Detect
 
 void setup() {
 
