@@ -90,7 +90,7 @@ void setup() {
 
   delay(3000);
 
-  sendATCommand("AT+CIPSTART");
+  // sendATCommand("AT+CIPSTART");
 
   // Bring Up Wireless Connection with GPRS, should return like ok
   sendATCommand("AT+CIICR");

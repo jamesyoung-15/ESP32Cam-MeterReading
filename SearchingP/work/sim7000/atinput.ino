@@ -50,6 +50,7 @@ void setup() {
   SerialMon.begin(115200);
   SerialAT.begin(9600, SERIAL_8N1, 17,13);
   
+  SerialMon.println("Restarting Module...");
   modem.restart();
   
   delay(200);
