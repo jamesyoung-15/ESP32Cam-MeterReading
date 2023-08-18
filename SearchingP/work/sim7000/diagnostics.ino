@@ -21,6 +21,9 @@
 const char apn[]  = "mobile.lte.three.com.hk";
 // const char apn[]  = "mobile.three.com.hk";
 
+const char gprsUser[] = "";
+const char gprsPass[] = "";
+
 const int  port = 80;
 bool nbiotConnected = false;
 int csq = 99;
