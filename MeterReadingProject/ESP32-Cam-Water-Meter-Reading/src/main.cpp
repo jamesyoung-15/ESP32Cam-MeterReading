@@ -33,8 +33,6 @@
 
 #include "camera_pins.h"
 
-const char* WIFI_SSID = "VIP_24G";
-const char* WIFI_PASSWD = "1357908642";
 
 // Recheck WiFI every interval
 unsigned long wifiCheckPreviousMillis = 0;
