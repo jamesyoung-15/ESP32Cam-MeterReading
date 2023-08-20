@@ -1,13 +1,14 @@
-#include "WiFi.h"
+
+/* Arduino Libraries */
 #include "ArduinoJson.h"
 #include "base64.h"
 #include "esp_camera.h"
 #include <WiFiClient.h>
 #include <WebServer.h>
+#include "WiFi.h"
 #include <ESPmDNS.h>
-
-#include "main.h"
 #include "string.h"
+
 // ===================
 // Select camera model
 // ===================
@@ -33,6 +34,8 @@
 
 #include "camera_pins.h"
 
+#include "secrets.h"
+#include "wifi_utils.h"
 
 // Recheck WiFI every interval
 unsigned long wifiCheckPreviousMillis = 0;
@@ -207,6 +210,8 @@ void startServer(){
 
 void setup(){
     Serial.begin(115200);
+    delay(500);
+    scanWifi();
     delay(500);
     connectWifi();
     delay(500);
