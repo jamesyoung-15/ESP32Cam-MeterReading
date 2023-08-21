@@ -6,7 +6,9 @@ Assuming everything setup (YoloV5 downloaded, weights imported), proceed below:
 1. Go to File Explorer.
 2. Go to the YoloV5 folder (should be in Downloads).
 3. Open the command prompt by selecting the entire text bar (should say something like This PC -> Desktop -> ...) and then replace it with the word `cmd` and press enter. See below for clarity:  
-[](./windowsexample.png)
+
+![](./windowsexample.png)
+
 4. In the command prompt, enter `python ./detect.py --weights watermeter.pt --hide-config --source "http://<ReplaceWithIP>:81/stream"`. This should open up the video stream and show the model image recognition part. This may take a few seconds so just wait.
 5. To exit/kill the program, pressing X on the video stream may not end it. You need to go back to command prompt and then press `ctrl c` or force quit the command prompt to kill the process.
 
