@@ -31,5 +31,3 @@ First approach is edge AI approach, where the approach uses something like Edge 
 
 Second approach is using another machine to to process and extract the meter reading from the image. This can be done with Cloud-based AI platform like Google's Cloud Vision API or a local machine. The ESP32-Camera sends the image data (in base64 encoded) to machine/server.
 
-In the end, the second approach was chosen, where 
-

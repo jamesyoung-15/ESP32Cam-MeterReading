@@ -8,6 +8,7 @@
 #include "WiFi.h"
 #include <ESPmDNS.h>
 #include "string.h"
+#include "esp_camera.h"
 
 // ===================
 // Select camera model
@@ -183,10 +184,14 @@ String takePicture(){
     // Serial.println(encoded);
     // Serial.println("\n\n\n");
 
+    
+
     esp_camera_fb_return(fb);
     
     return encoded;
 }
+
+
 
 void handleRoot() {
     String base64encoded = takePicture();
@@ -194,7 +199,8 @@ void handleRoot() {
     String htmlTag = "<img src=\"data:image/jpeg;base64," + base64encoded + "\" style=\"display: block; margin: auto; width: 50%;\">" + "<h4>Raw Base64</h4>" + base64encoded + "</p>";
     // Serial.println(htmlTag);
     if(base64encoded!="Error")
-        server.send(200, "text/html", htmlTag);
+        // server.send(200, "text/html", htmlTag);
+        server.send(200, "image/png", base64encoded);
     
      struct tm timeinfo;
      getLocalTime(&timeinfo);
@@ -207,6 +213,11 @@ void handleNotFound() {
     String message = "Error 404! File Not Found\n\n";
     server.send(404, "text/plain", message);
 }
+
+void handleTest(){
+    
+}
+
 
 void startServer(){
     if (MDNS.begin("esp32")) {

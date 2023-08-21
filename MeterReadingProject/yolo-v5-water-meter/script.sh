@@ -1,0 +1,1 @@
+sudo docker run --ipc=host -it --nvidia-smi -v "$(pwd)"/datasets:/usr/src/datasets ultralytics/yolov5:latest ultralytics/yolov5:latest

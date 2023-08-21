@@ -1,0 +1,6 @@
+{
+    "S3Folder": "$input.params('folder')",
+    "Filename": "$input.params('epoch')",
+    "EncodedImage": "$input.body"
+
+}
