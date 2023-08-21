@@ -37,12 +37,20 @@
 #include "secrets.h"
 #include "wifi_utils.h"
 
+#include "time.h"
+
+
 // Recheck WiFI every interval
 unsigned long wifiCheckPreviousMillis = 0;
 unsigned long wifiCheckInterval = 60000;
 unsigned long picturePreviousMillis = 0;
 unsigned long pictureInterval = 60000*3;
 
+
+// For getting current NTP time, using HKT (GMT+8)
+const char* ntpServer = "pool.ntp.org";
+const long  gmtOffset_sec = 28800;
+const int   daylightOffset_sec = 0;
 
 WebServer server(80);
 
@@ -187,6 +195,12 @@ void handleRoot() {
     // Serial.println(htmlTag);
     if(base64encoded!="Error")
         server.send(200, "text/html", htmlTag);
+    
+     struct tm timeinfo;
+     getLocalTime(&timeinfo);
+     char timeNow[50];
+     strftime(timeNow,50, "%Y%m%d%H%M%S", &timeinfo);
+     Serial.println(timeNow);
 }
 
 void handleNotFound() {
@@ -211,12 +225,22 @@ void startServer(){
 void setup(){
     Serial.begin(115200);
     delay(500);
+    
+    
     scanWifi();
     delay(500);
+    
+    
     connectWifi();
     delay(500);
+    
+
     startServer();
     delay(500);
+
+    // configure NTP time server
+    configTime(gmtOffset_sec, daylightOffset_sec, ntpServer);
+
     cameraConfig();
     delay(500);
 }
@@ -224,7 +248,7 @@ void setup(){
 
 void loop(){
     server.handleClient();
-
+    
 
 
 
