@@ -11,5 +11,5 @@ Assuming everything setup (YoloV5 downloaded, weights imported), proceed below:
 5. To exit/kill the program, pressing X on the video stream may not end it. You need to go back to command prompt and then press `ctrl c` or force quit the command prompt to kill the process.
 
 ## Images used for testing
-
+I put a few of the images that seemed to do okay with the model here: https://drive.google.com/drive/folders/19Lx49xkpTHNZbLAM0LcfYA5XxhkMY9mf?usp=drive_link.
 
