@@ -9,7 +9,7 @@ Assuming everything setup (YoloV5 downloaded, weights imported), proceed below:
 
 ![](./windowsexample.png)
 
-4. In the command prompt, enter `python ./detect.py --weights watermeter.pt --source "http://<ReplaceWithIP>:81/stream"`. This should open up the video stream and show the model image recognition part. This may take a few seconds so just wait. Replace `<ReplaceWithIP>` part with the ESP32-Camera IP which will be something like `192.168.1.12`.
+4. In the command prompt, enter `python ./detect.py --weights watermeter.pt --hide-conf --source "http://<ReplaceWithIP>:81/stream"`. This should open up the video stream and show the model image recognition part. This may take a few seconds so just wait. Replace `<ReplaceWithIP>` part with the ESP32-Camera IP which will be something like `192.168.1.12`.
 5. To exit/kill the program, pressing X on the video stream may not end it. You need to go back to command prompt and then press `ctrl c` or force quit the command prompt to kill the process.
 
 ## Images used for testing
