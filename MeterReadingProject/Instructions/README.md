@@ -1,5 +1,5 @@
 # Instructions for Demo 
-The water meter image recognition uses YoloV5 (computer vision model). Model was trained with dataset found online and model weights exported as the file `watermeter.pt`.
+The water meter image recognition uses YoloV5 (computer vision model). Model was trained with dataset found online and model weights exported as the file `watermeter.pt`. ESP32-Camera uses the Arduino ESP32-Camera web server code example.
 
 ## Usage on Windows
 Assuming everything setup (YoloV5 downloaded, weights imported), proceed below:
