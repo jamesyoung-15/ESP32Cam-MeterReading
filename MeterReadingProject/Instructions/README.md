@@ -12,6 +12,13 @@ Assuming everything setup (YoloV5 downloaded, weights imported), proceed below:
 4. In the command prompt, enter `python ./detect.py --weights watermeter.pt --hide-conf --source "http://<ReplaceWithIP>:81/stream"`. This should open up the video stream and show the model image recognition part. This may take a few seconds so just wait. Replace `<ReplaceWithIP>` part with the ESP32-Camera IP which will be something like `192.168.1.12`.
 5. To exit/kill the program, pressing X on the video stream may not end it. You need to go back to command prompt and then press `ctrl c` or force quit the command prompt to kill the process.
 
+## Camera Settings
+If you wish to change the stream quality or other camera settings in general, enter the ip of the ESP32-Camera in your web browser (eg. http://192.168.1.12) and change the settings there. It will look something like this:
+
+![](./webconfigexample.png)
+
+Note: Higher quality may help with image recognition but will be a lot slower frames.
+
 ## Images used for testing
 I put a few of the images that seemed to do okay with the model here: https://drive.google.com/drive/folders/19Lx49xkpTHNZbLAM0LcfYA5XxhkMY9mf?usp=drive_link.
 
