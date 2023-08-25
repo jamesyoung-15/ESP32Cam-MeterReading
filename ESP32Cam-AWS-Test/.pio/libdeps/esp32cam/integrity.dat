@@ -1,0 +1,4 @@
+espressif/esp32-camera@^2.0.4
+arduino-libraries/NTPClient@^3.2.1
+ESP Async WebServer
+bblanchon/ArduinoJson@^6.21.3

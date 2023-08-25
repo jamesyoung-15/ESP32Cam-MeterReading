@@ -9,8 +9,9 @@
 #include <ESPmDNS.h>
 #include "string.h"
 #include <HTTPClient.h>
-#include <NTPClient.h>
-#include <WiFiUdp.h>
+
+// #include <NTPClient.h>
+// #include <WiFiUdp.h>
 
 // ===================
 // Select camera model
@@ -39,16 +40,13 @@
 
 #include "secrets.h"
 
-// Define NTP Client to get time
-WiFiUDP ntpUDP;
-NTPClient timeClient(ntpUDP);
 
 
 // Recheck WiFI every interval
 // unsigned long wifiCheckPreviousMillis = 0;
 // unsigned long wifiCheckInterval = 60000;
 unsigned long picturePreviousMillis = 0;
-unsigned long pictureInterval = 60000/2;
+unsigned long pictureInterval = 60000*1;
 
 
 
@@ -72,8 +70,6 @@ void connectWifi(){
     Serial.println("Success!");
     Serial.print("IP Address: "); Serial.println(WiFi.localIP());
 
-    timeClient.begin();
-    timeClient.setTimeOffset(28800);   // GMT +1 = 3600, GMT +8 = 28800, GMT -1 = -3600, GMT 0 = 0
     
 }
 
@@ -128,24 +124,25 @@ void cameraConfig() {
     /* Camera Settings */
     config.pixel_format = PIXFORMAT_JPEG; // for streaming
     // config.pixel_format = PIXFORMAT_RGB565; // for face detection/recognition
-    config.grab_mode = CAMERA_GRAB_WHEN_EMPTY;
     config.fb_location = CAMERA_FB_IN_PSRAM;
     config.jpeg_quality = 10;
-    config.fb_count = 1;
-    config.frame_size = FRAMESIZE_XGA;
+    config.fb_count = 2;
+    config.frame_size = FRAMESIZE_VGA;
+    config.grab_mode = CAMERA_GRAB_LATEST;
+    // config.grab_mode = CAMERA_GRAB_WHEN_EMPTY;
 
     // Select lower framesize if the camera doesn't support PSRAM
-    if(psramFound()){
-        config.frame_size = FRAMESIZE_HD; // FRAMESIZE_ + QVGA|CIF|VGA|SVGA|XGA|SXGA|UXGA
-        config.jpeg_quality = 10; //10-63 lower number means higher quality
-        config.fb_count = 2;
-        config.grab_mode = CAMERA_GRAB_LATEST;
-    } 
-    else {
-        config.frame_size = FRAMESIZE_VGA;
-        config.jpeg_quality = 12;
-        config.fb_count = 1;
-    }
+    // if(psramFound()){
+    //     config.frame_size = FRAMESIZE_HD; // FRAMESIZE_ + QVGA|CIF|VGA|SVGA|XGA|SXGA|UXGA
+    //     config.jpeg_quality = 10; //10-63 lower number means higher quality
+    //     config.fb_count = 2;
+    //     config.grab_mode = CAMERA_GRAB_LATEST;
+    // } 
+    // else {
+    //     config.frame_size = FRAMESIZE_VGA;
+    //     config.jpeg_quality = 12;
+    //     config.fb_count = 1;
+    // }
 
     // camera init
     esp_err_t err = esp_camera_init(&config);
@@ -285,7 +282,6 @@ void loop(){
 
         else{
             HTTPClient http;
-            timeClient.update();
 
             Serial.println("Sending to AWS");
             // take and get encoded image, get formatted date to use as filename, package it as json, send to aws api
@@ -293,10 +289,10 @@ void loop(){
             http.addHeader("Content-Type", "application/json");
             
             String encodedImage = takePicture();
-            String formattedDate = String(timeClient.getDay()) + String(timeClient.getHours()) + String(timeClient.getMinutes()) + String(timeClient.getSeconds());
-            Serial.println(formattedDate);
-            String fileName = formattedDate;
-            String dataToSend = "{\"S3Folder\": \"TestDevice\",\"Filename\": \""+ fileName  + "\", \"base64Image\": \"" + encodedImage +"\"}";
+
+            String folderName = "TestDevice";
+
+            String dataToSend = "{\"S3Folder\": \"" + folderName + "\",  \"base64Image\": \"" + encodedImage +"\"}";
 
             // Serial.println(dataToSend);
             int httpResponseCode = http.POST(dataToSend);
@@ -308,15 +304,11 @@ void loop(){
                 Serial.println(response);           //Print request answer
             }
             else{
-            
                 Serial.print("Error on sending POST: ");
                 Serial.println(httpResponseCode);
-            
             }
-            
-            
-            picturePreviousMillis = currentMillis;
         }
+        picturePreviousMillis = currentMillis;
 
     }
 

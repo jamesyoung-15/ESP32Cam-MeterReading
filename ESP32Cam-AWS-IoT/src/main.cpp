@@ -2,15 +2,14 @@
 /* Arduino Libraries */
 #include "ArduinoJson.h"
 #include "base64.h"
+#include "string.h"
 #include "esp_camera.h"
 #include <WiFiClient.h>
 #include <WebServer.h>
 #include "WiFi.h"
 #include <ESPmDNS.h>
-#include "string.h"
 #include <HTTPClient.h>
-#include <NTPClient.h>
-#include <WiFiUdp.h>
+#include "PubSubClient.h"
 
 // ===================
 // Select camera model
@@ -33,27 +32,22 @@
 //#define CAMERA_MODEL_DFRobot_FireBeetle2_ESP32S3 // Has PSRAM
 //#define CAMERA_MODEL_DFRobot_Romeo_ESP32S3 // Has PSRAM
 
-// #define CAMERA_MODEL_AI_THINKER
-
 #include "camera_pins.h"
-
 #include "secrets.h"
 
-// Define NTP Client to get time
-WiFiUDP ntpUDP;
-NTPClient timeClient(ntpUDP);
 
 
 // Recheck WiFI every interval
 // unsigned long wifiCheckPreviousMillis = 0;
 // unsigned long wifiCheckInterval = 60000;
 unsigned long picturePreviousMillis = 0;
-unsigned long pictureInterval = 60000/2;
+unsigned long pictureInterval = 60000*1;
 
 
 
 WebServer server(80);
-
+WiFiClientSecure net = WiFiClientSecure();
+PubSubClient client(net);
 
 void connectWifi(){
     // set to station mode
@@ -72,35 +66,55 @@ void connectWifi(){
     Serial.println("Success!");
     Serial.print("IP Address: "); Serial.println(WiFi.localIP());
 
-    timeClient.begin();
-    timeClient.setTimeOffset(28800);   // GMT +1 = 3600, GMT +8 = 28800, GMT -1 = -3600, GMT 0 = 0
     
 }
 
-void scanWifi(){
-    Serial.println("Wifi scan... ");
+void messageHandler(char* topic, byte* payload, unsigned int length){
+    Serial.print("incoming: ");
+    Serial.println(topic);
 
-    // WiFi.scanNetworks will return the number of networks found
-    int n = WiFi.scanNetworks();
-    Serial.println("Scan done!");
-    if (n == 0) {
-        Serial.println("no networks found");
-    } else {
-        Serial.print(n);
-        Serial.println(" networks found");
-        for (int i = 0; i < n; ++i) {
-        // Print SSID and RSSI for each network found
-        Serial.print(i + 1);
-        Serial.print(": ");
-        Serial.print(WiFi.SSID(i));
-        Serial.print(" (");
-        Serial.print(WiFi.RSSI(i));
-        Serial.print(")");
-        Serial.println((WiFi.encryptionType(i) == WIFI_AUTH_OPEN)?" ":"*");
-        delay(10);
-        }
-    }
+    StaticJsonDocument<200> doc;
+    deserializeJson(doc, payload);
+    const char* message = doc["message"];
+    Serial.println(message);
 }
+
+void connectAWS()
+{
+    // Configure WiFiClientSecure to use the AWS IoT device credentials
+    net.setCACert(AWS_IOT_CERT_CA);
+    net.setCertificate(AWS_IOT_DEVICE_CERT);
+    net.setPrivateKey(AWS_IOT_PRIVATE_KEY);
+
+    // Connect to the MQTT broker on the AWS endpoint we defined earlier
+    client.setServer(AWS_IOT_ENDPOINT, 8883);
+
+    client.setBufferSize(40000);
+
+    // Create a message handler
+    client.setCallback(messageHandler);
+
+
+    Serial.println("Connecting to AWS IOT");
+
+    while (!client.connect(AWS_IOT_THINGNAME))
+    {
+        Serial.print(".");
+        delay(100);
+    }
+
+    if (!client.connected())
+    {
+        Serial.println("AWS IoT Timeout!");
+        return;
+    }
+
+    // Subscribe to a topic
+    //   client.subscribe(AWS_IOT_SUBSCRIBE_TOPIC);
+
+    Serial.println("AWS IoT Connected!");
+}
+
 
 void cameraConfig() {
     camera_config_t config;
@@ -128,24 +142,25 @@ void cameraConfig() {
     /* Camera Settings */
     config.pixel_format = PIXFORMAT_JPEG; // for streaming
     // config.pixel_format = PIXFORMAT_RGB565; // for face detection/recognition
-    config.grab_mode = CAMERA_GRAB_WHEN_EMPTY;
     config.fb_location = CAMERA_FB_IN_PSRAM;
     config.jpeg_quality = 10;
-    config.fb_count = 1;
-    config.frame_size = FRAMESIZE_XGA;
+    config.fb_count = 2;
+    config.frame_size = FRAMESIZE_VGA;
+    config.grab_mode = CAMERA_GRAB_LATEST;
+    // config.grab_mode = CAMERA_GRAB_WHEN_EMPTY;
 
     // Select lower framesize if the camera doesn't support PSRAM
-    if(psramFound()){
-        config.frame_size = FRAMESIZE_HD; // FRAMESIZE_ + QVGA|CIF|VGA|SVGA|XGA|SXGA|UXGA
-        config.jpeg_quality = 10; //10-63 lower number means higher quality
-        config.fb_count = 2;
-        config.grab_mode = CAMERA_GRAB_LATEST;
-    } 
-    else {
-        config.frame_size = FRAMESIZE_VGA;
-        config.jpeg_quality = 12;
-        config.fb_count = 1;
-    }
+    // if(psramFound()){
+    //     config.frame_size = FRAMESIZE_HD; // FRAMESIZE_ + QVGA|CIF|VGA|SVGA|XGA|SXGA|UXGA
+    //     config.jpeg_quality = 10; //10-63 lower number means higher quality
+    //     config.fb_count = 2;
+    //     config.grab_mode = CAMERA_GRAB_LATEST;
+    // } 
+    // else {
+    //     config.frame_size = FRAMESIZE_VGA;
+    //     config.jpeg_quality = 12;
+    //     config.fb_count = 1;
+    // }
 
     // camera init
     esp_err_t err = esp_camera_init(&config);
@@ -218,108 +233,51 @@ String takePicture(){
     return encoded;
 }
 
- /* Main page that displays photo */
-void handleRoot() {
-    String base64encoded = takePicture();
-    // Serial.println(base64encoded);
-    String htmlTag = "<img src=\"data:image/jpeg;base64," + base64encoded + "\" style=\"display: block; margin: auto; width: 50%;\">" + "<h4>Raw Base64</h4>" + base64encoded + "</p>";
-    // Serial.println(htmlTag);
-    if(base64encoded!="Error")
-        server.send(200, "text/html", htmlTag);
+
+
+
+
+void publishMessage(){
+    String encodedImage = takePicture();
+    String folderName = "TestDevice";
+    String dataToSend = "{\"S3Folder\": \"" + folderName + "\",  \"base64Image\": \"" + encodedImage +"\"}";
+    const char* cString = dataToSend.c_str();
+
+    Serial.println(cString);
+    // Serial.println(strlen(cString));
+
+    bool result = client.publish(AWS_IOT_PUBLISH_TOPIC, cString);
+    Serial.println((result) ? "Message sent to AWS!" : "Message failed to send to AWS");
 }
-
-/* Error 404 */
-void handleNotFound() {
-    String message = "Error 404! File Not Found\n\n";
-    server.send(404, "text/plain", message);
-}
-
-/* Start HTTP server */
-void startServer(){
-    if (MDNS.begin("esp32")) {
-        Serial.println("MDNS responder started");
-    }
-
-    server.on("/", handleRoot);
-
-    server.onNotFound(handleNotFound);
-
-    server.begin();
-    Serial.println("HTTP server started");
-}
-
-
 
 
 void setup(){
     Serial.begin(115200);
     delay(500);
-    scanWifi();
+    // scanWifi();
     delay(500);
     connectWifi();
     delay(500);
-    startServer();
+    // startServer();
     delay(500);
     cameraConfig();
+    delay(500);
+    connectAWS();
     delay(500);
 }
 
 
+
 void loop(){
     server.handleClient();
-    WiFiClientSecure client;
-    client.setInsecure(); // NOT RECOMMENDED
-
-    unsigned long currentMillis = millis();
-    // if WiFi is down, try reconnecting every interval
-
-    // take picture interval
-    if(currentMillis - picturePreviousMillis >= pictureInterval){
-        // check wifi
-        if(WiFi.status() != WL_CONNECTED){
-            Serial.print(millis());
-            Serial.println("Reconnecting to WiFi...");
-            WiFi.disconnect();
-            WiFi.reconnect();
-        }
-
-        else{
-            HTTPClient http;
-            timeClient.update();
-
-            Serial.println("Sending to AWS");
-            // take and get encoded image, get formatted date to use as filename, package it as json, send to aws api
-            http.begin(client, AWS_REST_API);
-            http.addHeader("Content-Type", "application/json");
-            
-            String encodedImage = takePicture();
-            String formattedDate = String(timeClient.getDay()) + String(timeClient.getHours()) + String(timeClient.getMinutes()) + String(timeClient.getSeconds());
-            Serial.println(formattedDate);
-            String fileName = formattedDate;
-            String dataToSend = "{\"S3Folder\": \"TestDevice\",\"Filename\": \""+ fileName  + "\", \"base64Image\": \"" + encodedImage +"\"}";
-
-            // Serial.println(dataToSend);
-            int httpResponseCode = http.POST(dataToSend);
-            if(httpResponseCode>0){
-  
-                String response = http.getString();  //Get the response to the request
-            
-                Serial.println(httpResponseCode);   //Print return code
-                Serial.println(response);           //Print request answer
-            }
-            else{
-            
-                Serial.print("Error on sending POST: ");
-                Serial.println(httpResponseCode);
-            
-            }
-            
-            
-            picturePreviousMillis = currentMillis;
-        }
-
+    if (millis() - picturePreviousMillis > pictureInterval)
+    {
+      picturePreviousMillis = millis();
+      publishMessage();
     }
+    client.loop();
 
     delay(2);
+    
 
 }
