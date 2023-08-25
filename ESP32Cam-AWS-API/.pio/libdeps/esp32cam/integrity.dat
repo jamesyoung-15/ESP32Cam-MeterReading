@@ -1,0 +1,3 @@
+arduino-libraries/NTPClient@^3.2.1
+espressif/esp32-camera@^2.0.4
+bblanchon/ArduinoJson@^6.21.3

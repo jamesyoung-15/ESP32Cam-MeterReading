@@ -1,2 +1,0 @@
-# ESP32-Camera Web Server
-Taken from Arduino example. Only difference is that you need to create a secrets.h file in the `src/` folder and enter your wifi ssid and password there. Copy and paste the `secretes_example.h` as reference and just change the `const char* ssid = "******"` and `const char* password = "******"`.
