@@ -11,7 +11,7 @@ Approach 1 using text detection from AWS Rekognition:
 
 ![](./assets/diagrams/watermeter-project-diagram-v1.jpg)
 
-Appoach 2
+Appoach 2 using AI-on-the
 
 ![](./assets/diagrams/watermeter-project-diagram-v2.jpg)
 

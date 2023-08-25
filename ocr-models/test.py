@@ -18,7 +18,7 @@ thresh = 255 - cv2.threshold(gray, 0, 255, cv2.THRESH_BINARY_INV + cv2.THRESH_OT
 # Blur and perform text extraction
 thresh = cv2.GaussianBlur(thresh, (3,3), 0)
 img1 = np.array(thresh)
-data = pytesseract.image_to_string(img1, config='--psm 11 digits')
+data = pytesseract.image_to_string(img1, config='--psm 1 digits')
 print(data)
 
 cv2.imshow('thresh', thresh)

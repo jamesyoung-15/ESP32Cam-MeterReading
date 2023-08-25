@@ -70,9 +70,9 @@ def show_text(photo, bucket):
 
 def main():
     bucket = 'water-meter-images-test'
-    photo = 'watermeter.jpeg'
+    photo = 'digits2.png'
     faces_count = show_text(photo, bucket)
-    print("faces detected: " + str(faces_count))
+    print("text detected: " + str(faces_count))
 
 if __name__ == "__main__":
     main()
