@@ -255,4 +255,4 @@
  /home/jamesyoung/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32/include/mbedtls/port/include/aes/esp_aes.h \
  /home/jamesyoung/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32/include/hal/include/hal/aes_types.h \
  /home/jamesyoung/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32/include/mbedtls/mbedtls/include/mbedtls/error.h \
- src/camera_pins.h src/secrets.h src/html.h
+ src/secrets.h src/camera_pins.h src/html.h

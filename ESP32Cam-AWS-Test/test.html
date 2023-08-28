@@ -8,7 +8,7 @@
                 text-align:center; 
             }
             main{
-                max-width: 800px;
+                max-width: 1280px;
                 margin: 20px auto;
             }
             .button-container{
@@ -16,7 +16,7 @@
             }
 
             .crop-container{
-                max-width: 800px;
+                max-width: 1280px;
                 margin: 20px auto;
             }
             img {
@@ -30,14 +30,15 @@
             <p>Press take photo to get image from ESP32-Cam, then press check photo to display image.</p>
             <p>
                 <button onclick="capturePhoto()">Take Photo</button>
-                <button onclick="location.reload();">Check Photo</button>
+                <button onclick="reloadPhoto()">Check Photo</button>
             </p>
         </header>
         <main>
             <div class="crop-container">
-                <img src="../assets/testimages/watermeter.jpg" id="photo" class="photo">
                 <!-- <img src="saved-photo" id="photo"> -->
+                <img src="../assets/testimages/watermeter.jpg" id="photo">
             </div>
+            
             <div class="button-container">
                 <p>Press take photo to get image from ESP32-Cam, then press check photo to display image.</p>
                 <p>
@@ -54,7 +55,7 @@
             <h3>Result</h3>
             <div id="crop-result"></div>
         </main>
-
+        <script src="https://code.jquery.com/jquery-3.7.0.min.js" integrity="sha256-2Pmvv0kuTBOenSvLm6bvfBSSHrUJ+3A7x6P5Ebd07/g=" crossorigin="anonymous"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.0/cropper.js" integrity="sha512-q9N9RDpXWA3HKu2spOTpZ0j64hL0kfwHQiCgGq9FUuVtTOn7K894cu3YQBtA6rz8T7gbAyuBo+sooxR+/sO4Lg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     </body>
     <script>
@@ -63,8 +64,9 @@
             let cropPreview = document.getElementById('crop-button');
             let previewResult = document.getElementById('crop-result');
             let sendCropData = document.getElementById('send-crop-data');
-            let sendAWSButton = document.getElementById('send-aws')
-            let cropper = new Cropper(image, {
+            let sendAWSButton = document.getElementById('send-aws');
+            var croppedImage = image.src;
+            let cropper = new Cropper(image, { 
                 ready: function (event) {
                 // Zoom the image to its natural size
                 cropper.zoomTo(1);
@@ -91,6 +93,7 @@
             cropPreview.onclick = () => {
                 previewResult.innerHTML = '';
                 previewResult.appendChild(cropper.getCroppedCanvas());
+                
             };
 
             sendCropData.onclick = () => {
@@ -118,6 +121,14 @@
             let xhr = new XMLHttpRequest();
             xhr.open('GET', "/capture", true);
             xhr.send();
+        }
+        let reloadPhoto = () => {
+            var imageElement = document.getElementById("photo");
+            var imageUrl = imageElement.src;
+            
+            // Append a timestamp query parameter to the image URL to force reload
+            var timestamp = new Date().getTime();
+            imageElement.src = imageUrl + "?timestamp=" + timestamp;
         }
     </script>
 </html>

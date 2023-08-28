@@ -12,7 +12,7 @@ const char index_html[] PROGMEM = R"rawliteral(
                 text-align:center; 
             }
             main{
-                max-width: 800px;
+                max-width: 1280px;
                 margin: 20px auto;
             }
             .button-container{
@@ -20,7 +20,7 @@ const char index_html[] PROGMEM = R"rawliteral(
             }
 
             .crop-container{
-                max-width: 800px;
+                max-width: 1280px;
                 margin: 20px auto;
             }
             img {
@@ -57,7 +57,9 @@ const char index_html[] PROGMEM = R"rawliteral(
             <h3>Result</h3>
             <div id="crop-result"></div>
         </main>
-
+        <!-- TesseractJS v4 -->
+        <script src='https://cdn.jsdelivr.net/npm/tesseract.js@4/dist/tesseract.min.js'></script>
+        <script src="https://code.jquery.com/jquery-3.7.0.min.js" integrity="sha256-2Pmvv0kuTBOenSvLm6bvfBSSHrUJ+3A7x6P5Ebd07/g=" crossorigin="anonymous"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.0/cropper.js" integrity="sha512-q9N9RDpXWA3HKu2spOTpZ0j64hL0kfwHQiCgGq9FUuVtTOn7K894cu3YQBtA6rz8T7gbAyuBo+sooxR+/sO4Lg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     </body>
     <script>
@@ -67,7 +69,7 @@ const char index_html[] PROGMEM = R"rawliteral(
             let previewResult = document.getElementById('crop-result');
             let sendCropData = document.getElementById('send-crop-data');
             let sendAWSButton = document.getElementById('send-aws')
-            let cropper = new Cropper(image, {
+            let cropper = new Cropper(image, { 
                 ready: function (event) {
                 // Zoom the image to its natural size
                 cropper.zoomTo(1);

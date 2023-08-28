@@ -10,36 +10,13 @@
 #include "string.h"
 #include <HTTPClient.h>
 
-// #include <NTPClient.h>
-// #include <WiFiUdp.h>
-
-// ===================
-// Select camera model
-// ===================
-// #define CAMERA_MODEL_WROVER_KIT // Has PSRAM
-// #define CAMERA_MODEL_ESP_EYE // Has PSRAM
-//#define CAMERA_MODEL_ESP32S3_EYE // Has PSRAM
-//#define CAMERA_MODEL_M5STACK_PSRAM // Has PSRAM
-//#define CAMERA_MODEL_M5STACK_V2_PSRAM // M5Camera version B Has PSRAM
-//#define CAMERA_MODEL_M5STACK_WIDE // Has PSRAM
-//#define CAMERA_MODEL_M5STACK_ESP32CAM // No PSRAM
-//#define CAMERA_MODEL_M5STACK_UNITCAM // No PSRAM
-#define CAMERA_MODEL_AI_THINKER // Has PSRAM
-//#define CAMERA_MODEL_TTGO_T_JOURNAL // No PSRAM
-//#define CAMERA_MODEL_XIAO_ESP32S3 // Has PSRAM
-// ** Espressif Internal Boards **
-//#define CAMERA_MODEL_ESP32_CAM_BOARD
-//#define CAMERA_MODEL_ESP32S2_CAM_BOARD
-//#define CAMERA_MODEL_ESP32S3_CAM_LCD
-//#define CAMERA_MODEL_DFRobot_FireBeetle2_ESP32S3 // Has PSRAM
-//#define CAMERA_MODEL_DFRobot_Romeo_ESP32S3 // Has PSRAM
-
 /* Own Includes */
-#include "camera_pins.h"
 #include "secrets.h"
+#include "camera_pins.h"
 #include "html.h"
 
 /* Global Variables */
+
 // Recheck WiFI every interval
 // unsigned long wifiCheckPreviousMillis = 0;
 // unsigned long wifiCheckInterval = 60000;
@@ -61,6 +38,22 @@ unsigned short cropTop = 0;
 unsigned short cropWidth = 0;
 unsigned short cropHeight = 0;
 
+// For using external RAM with ArduinoJSON
+struct SpiRamAllocator {
+  void* allocate(size_t size) {
+    return heap_caps_malloc(size, MALLOC_CAP_SPIRAM);
+  }
+
+  void deallocate(void* pointer) {
+    heap_caps_free(pointer);
+  }
+
+  void* reallocate(void* ptr, size_t new_size) {
+    return heap_caps_realloc(ptr, new_size, MALLOC_CAP_SPIRAM);
+  }
+};
+
+using SpiRamJsonDocument = BasicJsonDocument<SpiRamAllocator>;
 
 
 void connectWifi(){
@@ -137,7 +130,7 @@ void cameraConfig() {
     config.fb_location = CAMERA_FB_IN_PSRAM;
     config.jpeg_quality = 10;
     config.fb_count = 2;
-    config.frame_size = FRAMESIZE_SVGA;
+    config.frame_size = FRAMESIZE_HD;
     config.grab_mode = CAMERA_GRAB_LATEST;
     // config.grab_mode = CAMERA_GRAB_WHEN_EMPTY;
 
@@ -199,6 +192,16 @@ String takePicture(){
     } else {
         Serial.println("Camera capture successful!");
     }
+
+    const char *data = (const char *)fb->buf;
+    // Image metadata
+    Serial.print("Size of image:");
+    Serial.println(fb->len);
+    Serial.print("Shape->width:");
+    Serial.print(fb->width);
+    Serial.print("height:");
+    Serial.println(fb->height);
+    Serial.println("\n\n");
     
     
     // encode buffer to base64
@@ -210,6 +213,54 @@ String takePicture(){
     esp_camera_fb_return(fb);
     
     return encoded;
+}
+
+
+void sendPhotoToS3(){
+    // check wifi
+    if(WiFi.status() != WL_CONNECTED){
+        Serial.println("Cannot send: Not connected to Wifi!");
+        return;
+    }
+
+    else{
+        HTTPClient http;
+
+        Serial.println("Sending to AWS");
+        // take and get encoded image, get formatted date to use as filename, package it as json, send to aws api
+        http.begin(client, AWS_REST_API);
+        http.addHeader("Content-Type", "application/json");
+        
+        String encodedImage = takePicture();
+
+        String folderName = "TestDevice";
+
+        // String dataToSend = "{\"S3Folder\": \"" + folderName + "\", \"base64Image\": \"" + encodedImage +"\"}";
+        
+        SpiRamJsonDocument doc(128000);        
+        doc["S3Folder"] = folderName;
+        doc["cropLeft"] = cropLeft;
+        doc["cropTop"] = cropTop;
+        doc["cropWidth"] = cropWidth;
+        doc["cropHeight"] = cropHeight;
+        doc["base64Image"] = encodedImage;
+        String dataToSend;
+        serializeJson(doc, dataToSend);
+
+        // Serial.println(dataToSend);
+        int httpResponseCode = http.POST(dataToSend);
+        if(httpResponseCode>0){
+
+            String response = http.getString();  //Get the response to the request
+        
+            Serial.print("Response code: "); Serial.println(httpResponseCode);   //Print return code
+            // Serial.println(response);           //Print request answer
+        }
+        else{
+            Serial.print("Error on sending POST: ");
+            Serial.print("Response code: "); Serial.println(httpResponseCode); 
+        }
+    }
 }
 
 void checkCropDim(){
@@ -226,8 +277,8 @@ void beginServer(){
     });
 
     server.on("/capture", HTTP_GET, [](AsyncWebServerRequest * request) {
-        takeNewPhoto = true;
         request->send_P(200, "text/plain", "Taking Photo");
+        takeNewPhoto = true;
     });
 
     server.on("/saved-photo", HTTP_GET, [](AsyncWebServerRequest * request) {
@@ -235,9 +286,9 @@ void beginServer(){
     });
 
     server.on("/send-aws", HTTP_GET, [](AsyncWebServerRequest * request) {
-        // sendToAWS();
         Serial.println("sendAWS");
         request->send_P(200, "text/plain", "Sending to AWS");
+        sendToAWS = true;
     });
 
     server.on("/cropData", HTTP_GET, [](AsyncWebServerRequest * request) {
@@ -249,8 +300,8 @@ void beginServer(){
         cropTop = top.toInt();
         cropWidth = width.toInt();
         cropHeight = height.toInt();
-        checkCropDim();
         request->send_P(200, "text/plain", "Received crop data");
+        checkCropDim();
     });
 
 
@@ -307,51 +358,13 @@ void capturePhotoSaveSpiffs( void ) {
   } while ( !ok );
 }
 
-void sendPhotoToS3(){
-    // check wifi
-    if(WiFi.status() != WL_CONNECTED){
-        Serial.print(millis());
-        Serial.println("Reconnecting to WiFi...");
-        WiFi.disconnect();
-        WiFi.reconnect();
-    }
-
-    else{
-        HTTPClient http;
-
-        Serial.println("Sending to AWS");
-        // take and get encoded image, get formatted date to use as filename, package it as json, send to aws api
-        http.begin(client, AWS_REST_API);
-        http.addHeader("Content-Type", "application/json");
-        
-        String encodedImage = takePicture();
-
-        String folderName = "TestDevice";
-
-        String dataToSend = "{\"S3Folder\": \"" + folderName + "\",  \"base64Image\": \"" + encodedImage +"\"}";
-
-        // Serial.println(dataToSend);
-        int httpResponseCode = http.POST(dataToSend);
-        if(httpResponseCode>0){
-
-            String response = http.getString();  //Get the response to the request
-        
-            Serial.println(httpResponseCode);   //Print return code
-            Serial.println(response);           //Print request answer
-        }
-        else{
-            Serial.print("Error on sending POST: ");
-            Serial.println(httpResponseCode);
-        }
-    }
-}
 
 
 void setup(){
     Serial.begin(115200);
     delay(500);
-    scanWifi();
-    delay(500);
+    // scanWifi();
+    // delay(500);
     connectWifi();
     delay(500);
     cameraConfig();
@@ -382,9 +395,13 @@ void loop(){
         capturePhotoSaveSpiffs();
         takeNewPhoto = false;
     }
+    if (sendToAWS) {
+        sendPhotoToS3();
+        sendToAWS = false;
+    }
 
 
-    #ifdef SEND_AWS
+    #ifdef SEND_AWS_EVERY_INTERVAL
     // take picture interval
     if(currentMillis - picturePreviousMillis >= pictureInterval){
         // check wifi

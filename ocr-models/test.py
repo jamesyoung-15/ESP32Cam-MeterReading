@@ -5,7 +5,7 @@ import numpy as np
 import urllib
 import requests
 
-col = Image.open("digits.png")
+col = Image.open("awsdigits.jpg")
 gray = col.convert('L')
 bw = gray.point(lambda x: 0 if x<128 else 255, '1')
 bw.save("cp19.png")
