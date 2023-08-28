@@ -131,7 +131,7 @@
  /home/jamesyoung/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32/include/spi_flash/include/esp_spi_flash_counters.h \
  /home/jamesyoung/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32/include/esp_hw_support/include/soc/esp32/spiram.h \
  .pio/libdeps/esp32cam/ESP\ Async\ WebServer/src/AsyncWebSocket.h \
- .pio/libdeps/esp32cam/AsyncTCP/src/AsyncTCP.h \
+ .pio/libdeps/esp32cam/AsyncTCP@src-2154f270fe2afd37e50c673663dbc05d/src/AsyncTCP.h \
  /home/jamesyoung/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32/include/lwip/lwip/src/include/lwip/pbuf.h \
  /home/jamesyoung/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32/include/lwip/lwip/src/include/lwip/opt.h \
  /home/jamesyoung/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32/include/lwip/port/esp32/include/lwipopts.h \
@@ -200,4 +200,12 @@
  .pio/libdeps/esp32cam/ESP\ Async\ WebServer/src/WebHandlerImpl.h \
  .pio/libdeps/esp32cam/ESP\ Async\ WebServer/src/AsyncEventSource.h \
  .pio/libdeps/esp32cam/ESP\ Async\ WebServer/src/AsyncWebSynchronization.h \
- /home/jamesyoung/.platformio/packages/framework-arduinoespressif32/cores/esp32/libb64/cencode.h
+ /home/jamesyoung/.platformio/packages/framework-arduinoespressif32/cores/esp32/libb64/cencode.h \
+ /home/jamesyoung/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32/include/mbedtls/mbedtls/include/mbedtls/sha1.h \
+ /home/jamesyoung/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32/include/mbedtls/port/include/mbedtls/esp_config.h \
+ /home/jamesyoung/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32/include/mbedtls/mbedtls/include/mbedtls/config.h \
+ /home/jamesyoung/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32/include/mbedtls/mbedtls/include/mbedtls/check_config.h \
+ /home/jamesyoung/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32/include/mbedtls/port/include/esp_mem.h \
+ /home/jamesyoung/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32/include/mbedtls/port/include/sha1_alt.h \
+ /home/jamesyoung/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32/include/hal/include/hal/sha_types.h \
+ /home/jamesyoung/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32/include/esp_rom/include/esp32/rom/sha.h

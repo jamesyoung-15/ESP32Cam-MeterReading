@@ -131,7 +131,7 @@
  /home/jamesyoung/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32/include/spi_flash/include/esp_spi_flash_counters.h \
  /home/jamesyoung/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32/include/esp_hw_support/include/soc/esp32/spiram.h \
  .pio/libdeps/esp32cam/ESP\ Async\ WebServer/src/AsyncEventSource.h \
- .pio/libdeps/esp32cam/AsyncTCP/src/AsyncTCP.h \
+ .pio/libdeps/esp32cam/AsyncTCP@src-2154f270fe2afd37e50c673663dbc05d/src/AsyncTCP.h \
  /home/jamesyoung/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32/include/lwip/lwip/src/include/lwip/pbuf.h \
  /home/jamesyoung/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32/include/lwip/lwip/src/include/lwip/opt.h \
  /home/jamesyoung/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32/include/lwip/port/esp32/include/lwipopts.h \

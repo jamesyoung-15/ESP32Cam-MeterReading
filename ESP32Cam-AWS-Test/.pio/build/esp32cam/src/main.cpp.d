@@ -143,7 +143,10 @@
  /home/jamesyoung/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32/include/esp32-camera/conversions/include/esp_jpg_decode.h \
  /home/jamesyoung/.platformio/packages/framework-arduinoespressif32/libraries/WiFi/src/WiFiClient.h \
  /home/jamesyoung/.platformio/packages/framework-arduinoespressif32/cores/esp32/Client.h \
- /home/jamesyoung/.platformio/packages/framework-arduinoespressif32/libraries/WebServer/src/WebServer.h \
+ /home/jamesyoung/.platformio/packages/framework-arduinoespressif32/libraries/SPIFFS/src/SPIFFS.h \
+ /home/jamesyoung/.platformio/packages/framework-arduinoespressif32/libraries/FS/src/FS.h \
+ .pio/libdeps/esp32cam/ESP\ Async\ WebServer/src/ESPAsyncWebServer.h \
+ .pio/libdeps/esp32cam/ESP\ Async\ WebServer/src/StringArray.h \
  /home/jamesyoung/.platformio/packages/framework-arduinoespressif32/libraries/WiFi/src/WiFi.h \
  /home/jamesyoung/.platformio/packages/framework-arduinoespressif32/cores/esp32/Print.h \
  /home/jamesyoung/.platformio/packages/framework-arduinoespressif32/cores/esp32/IPv6Address.h \
@@ -202,10 +205,14 @@
  /home/jamesyoung/.platformio/packages/framework-arduinoespressif32/libraries/WiFi/src/WiFiUdp.h \
  /home/jamesyoung/.platformio/packages/framework-arduinoespressif32/cores/esp32/Udp.h \
  /home/jamesyoung/.platformio/packages/framework-arduinoespressif32/cores/esp32/cbuf.h \
- /home/jamesyoung/.platformio/packages/framework-arduinoespressif32/libraries/WebServer/src/HTTP_Method.h \
- /home/jamesyoung/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32/include/nghttp/port/include/http_parser.h \
- /home/jamesyoung/.platformio/packages/framework-arduinoespressif32/libraries/WebServer/src/Uri.h \
- /home/jamesyoung/.platformio/packages/framework-arduinoespressif32/libraries/WebServer/src/detail/RequestHandler.h \
+ .pio/libdeps/esp32cam/AsyncTCP@src-2154f270fe2afd37e50c673663dbc05d/src/AsyncTCP.h \
+ /home/jamesyoung/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32/include/lwip/lwip/src/include/lwip/pbuf.h \
+ /home/jamesyoung/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32/include/lwip/lwip/src/include/lwip/err.h \
+ .pio/libdeps/esp32cam/ESP\ Async\ WebServer/src/WebResponseImpl.h \
+ .pio/libdeps/esp32cam/ESP\ Async\ WebServer/src/WebHandlerImpl.h \
+ .pio/libdeps/esp32cam/ESP\ Async\ WebServer/src/AsyncWebSocket.h \
+ .pio/libdeps/esp32cam/ESP\ Async\ WebServer/src/AsyncWebSynchronization.h \
+ .pio/libdeps/esp32cam/ESP\ Async\ WebServer/src/AsyncEventSource.h \
  /home/jamesyoung/.platformio/packages/framework-arduinoespressif32/libraries/ESPmDNS/src/ESPmDNS.h \
  /home/jamesyoung/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32/include/mdns/include/mdns.h \
  /home/jamesyoung/.platformio/packages/framework-arduinoespressif32/libraries/HTTPClient/src/HTTPClient.h \
@@ -248,15 +255,4 @@
  /home/jamesyoung/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32/include/mbedtls/port/include/aes/esp_aes.h \
  /home/jamesyoung/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32/include/hal/include/hal/aes_types.h \
  /home/jamesyoung/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32/include/mbedtls/mbedtls/include/mbedtls/error.h \
- .pio/libdeps/esp32cam/AsyncTCP/src/AsyncTCP.h \
- /home/jamesyoung/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32/include/lwip/lwip/src/include/lwip/pbuf.h \
- /home/jamesyoung/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32/include/lwip/lwip/src/include/lwip/err.h \
- .pio/libdeps/esp32cam/ESP\ Async\ WebServer/src/ESPAsyncWebServer.h \
- /home/jamesyoung/.platformio/packages/framework-arduinoespressif32/libraries/FS/src/FS.h \
- .pio/libdeps/esp32cam/ESP\ Async\ WebServer/src/StringArray.h \
- .pio/libdeps/esp32cam/ESP\ Async\ WebServer/src/WebResponseImpl.h \
- .pio/libdeps/esp32cam/ESP\ Async\ WebServer/src/WebHandlerImpl.h \
- .pio/libdeps/esp32cam/ESP\ Async\ WebServer/src/AsyncWebSocket.h \
- .pio/libdeps/esp32cam/ESP\ Async\ WebServer/src/AsyncWebSynchronization.h \
- .pio/libdeps/esp32cam/ESP\ Async\ WebServer/src/AsyncEventSource.h \
- src/camera_pins.h src/secrets.h
+ src/camera_pins.h src/secrets.h src/html.h

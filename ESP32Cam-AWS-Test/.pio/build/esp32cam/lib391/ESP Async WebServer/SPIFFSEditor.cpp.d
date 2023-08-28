@@ -193,7 +193,7 @@
  /home/jamesyoung/.platformio/packages/framework-arduinoespressif32/libraries/WiFi/src/WiFiUdp.h \
  /home/jamesyoung/.platformio/packages/framework-arduinoespressif32/cores/esp32/Udp.h \
  /home/jamesyoung/.platformio/packages/framework-arduinoespressif32/cores/esp32/cbuf.h \
- .pio/libdeps/esp32cam/AsyncTCP/src/AsyncTCP.h \
+ .pio/libdeps/esp32cam/AsyncTCP@src-2154f270fe2afd37e50c673663dbc05d/src/AsyncTCP.h \
  /home/jamesyoung/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32/include/lwip/lwip/src/include/lwip/pbuf.h \
  /home/jamesyoung/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32/include/lwip/lwip/src/include/lwip/err.h \
  .pio/libdeps/esp32cam/ESP\ Async\ WebServer/src/WebResponseImpl.h \

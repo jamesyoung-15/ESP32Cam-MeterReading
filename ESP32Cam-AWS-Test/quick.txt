@@ -1,0 +1,2 @@
+<script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.0/cropper.js" integrity="sha512-q9N9RDpXWA3HKu2spOTpZ0j64hL0kfwHQiCgGq9FUuVtTOn7K894cu3YQBtA6rz8T7gbAyuBo+sooxR+/sO4Lg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.0/cropper.css" integrity="sha512-hBT8ir1rdidrjzYcDj50eQ5gglkAc1c7tmzpdkiGydrn3Tt3+cGJ+GdsXLYmwETdStY0JZXbv6p4jgGDQU0fMw==" crossorigin="anonymous" referrerpolicy="no-referrer" />

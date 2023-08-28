@@ -1,4 +1,5 @@
-espressif/esp32-camera@^2.0.4
 arduino-libraries/NTPClient@^3.2.1
-ESP Async WebServer
+https://github.com/me-no-dev/AsyncTCP
 bblanchon/ArduinoJson@^6.21.3
+espressif/esp32-camera@^2.0.4
+https://github.com/me-no-dev/ESPAsyncWebServer.git
