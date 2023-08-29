@@ -4,7 +4,7 @@
 #include "esp_camera.h"
 #include <WiFiClient.h>
 #include "SPIFFS.h"
-#include "ESPAsyncWebServer.h"
+#include "ESPAsyncWebSrv.h"
 #include "WiFi.h"
 #include <ESPmDNS.h>
 #include "string.h"
@@ -22,6 +22,7 @@
 // unsigned long wifiCheckInterval = 60000;
 
 // Take Photo every interval
+#define SEND_AWS_EVERY_INTERVAL
 unsigned long picturePreviousMillis = 0;
 unsigned long pictureInterval = 60000*1;
 
@@ -389,20 +390,9 @@ void setup(){
 void loop(){
 
     unsigned long currentMillis = millis();
-    // if WiFi is down, try reconnecting every interval
-
-    if (takeNewPhoto) {
-        capturePhotoSaveSpiffs();
-        takeNewPhoto = false;
-    }
-    if (sendToAWS) {
-        sendPhotoToS3();
-        sendToAWS = false;
-    }
-
 
     #ifdef SEND_AWS_EVERY_INTERVAL
-    // take picture interval
+    // take picture interval and recheck wifi
     if(currentMillis - picturePreviousMillis >= pictureInterval){
         // check wifi
         if(WiFi.status() != WL_CONNECTED){
@@ -413,38 +403,22 @@ void loop(){
         }
 
         else{
-            HTTPClient http;
-
-            Serial.println("Sending to AWS");
-            // take and get encoded image, get formatted date to use as filename, package it as json, send to aws api
-            http.begin(client, AWS_REST_API);
-            http.addHeader("Content-Type", "application/json");
-            
-            String encodedImage = takePicture();
-
-            String folderName = "TestDevice";
-
-            String dataToSend = "{\"S3Folder\": \"" + folderName + "\",  \"base64Image\": \"" + encodedImage +"\"}";
-
-            // Serial.println(dataToSend);
-            int httpResponseCode = http.POST(dataToSend);
-            if(httpResponseCode>0){
-
-                String response = http.getString();  //Get the response to the request
-            
-                Serial.println(httpResponseCode);   //Print return code
-                Serial.println(response);           //Print request answer
-            }
-            else{
-                Serial.print("Error on sending POST: ");
-                Serial.println(httpResponseCode);
-            }
+            sendPhotoToS3();
+            sendToAWS = false;
         }
         picturePreviousMillis = currentMillis;
 
     }
     #endif
 
-    delay(2);
+    if (takeNewPhoto) {
+        capturePhotoSaveSpiffs();
+        takeNewPhoto = false;
+    }
+    if (sendToAWS) {
+        sendPhotoToS3();
+        sendToAWS = false;
+    }
 
+    delay(2);
 }
