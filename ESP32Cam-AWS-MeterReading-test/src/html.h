@@ -1,3 +1,7 @@
+#ifndef MY_HTML_H
+#define MY_HTML_H
+
+const char index_html[] PROGMEM = R"rawliteral(
 <!DOCTYPE HTML>
 <html>
     <head>
@@ -45,8 +49,7 @@
             </section>
             <section class="crop-container grid">
                 <div>
-                    <img src="saved-photo.jpeg" id="photo">
-                    <!-- <img src="../assets/testimages/watermeter.jpg" id="photo"> -->
+                    <img src="saved-photo.jpg" id="photo">
                 </div>
                 <div>
                     <table role="grid">
@@ -58,8 +61,8 @@
                         </thead>
                         <tbody>
                             <tr>
-                                <td id="esp32-crop-left"></td>
-                                <td id="esp32-crop-top"></td>
+                                <td><input type="number" id="esp32-crop-left"></td>
+                                <td><input type="number" id="esp32-crop-top"></td>
                             </tr>
                         </tbody>
                         <thead>
@@ -70,12 +73,12 @@
                         </thead>
                         <tbody>
                             <tr>
-                                <td id="esp32-crop-width"></td>
-                                <td id="esp32-crop-height"></td>
+                                <td> <input type="number" id ="esp32-crop-width"></td>
+                                <td> <input type="number" id="esp32-crop-height"></td>
                             </tr>
                         </tbody>
                     </table>
-                    <label>Rotate <span id="rotate-degrees">0</span>°<br><input type="range" step="1" min="-90" max="90" value="0" id="rotate-image"></label>
+                    <label>Rotate: <span id="rotate-degrees">0</span> Deg<br><input autocomplete="off" type="range" step="1" min="-90" max="90" value="0" id="rotate-image"></label>
                 </div>
             </section>
             <section class="button-container grid">
@@ -111,17 +114,17 @@
                 rotatable: true,
                 // movable: false, 
                 ready: function (event) {
-                // Zoom the image to its natural size
-                cropper.zoomTo(1);
+                    // Zoom the image to its natural size
+                    cropper.zoomTo(1);
                 },
                 
                 crop: function (event) {
                     let cropData = cropper.getData();
                     // document.querySelector('#cropper-data').textContent = JSON.stringify(cropper.getData());
-                    document.querySelector('#esp32-crop-left').textContent = `${Math.round(cropData.x)}`; 
-                    document.querySelector('#esp32-crop-top').textContent = `${Math.round(cropData.y)}`;
-                    document.querySelector('#esp32-crop-height').textContent =`${Math.round(cropData.height)}`; 
-                    document.querySelector('#esp32-crop-width').textContent =`${Math.round(cropData.width)}`;
+                    document.querySelector('#esp32-crop-left').value = `${Math.round(cropData.x)}`; 
+                    document.querySelector('#esp32-crop-top').value = `${Math.round(cropData.y)}`;
+                    document.querySelector('#esp32-crop-height').value =`${Math.round(cropData.height)}`; 
+                    document.querySelector('#esp32-crop-width').value =`${Math.round(cropData.width)}`;
                 },
 
                 zoom: function (event) {
@@ -187,3 +190,6 @@
         });
     </script>
 </html>
+)rawliteral";
+
+#endif

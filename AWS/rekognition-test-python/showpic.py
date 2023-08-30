@@ -5,23 +5,21 @@ from PIL import Image, ImageDraw, ImageFont
 
 def show_text(photo, bucket):
 
+    # set Rekognition client
     session = boto3.Session(profile_name='default')
     client = session.client('rekognition')
 
-    # Load image from S3 bucket
+    # Get image from S3 bucket
     s3_connection = boto3.resource('s3')
     s3_object = s3_connection.Object(bucket, photo)
     s3_response = s3_object.get()
-
+    # Load image using io and pillow
     stream = io.BytesIO(s3_response['Body'].read())
     image = Image.open(stream)
 
     # Call detect text from rekognition, sort from left side of image to right
     response = client.detect_text(Image={'S3Object': {'Bucket': bucket, 'Name': photo}})
     textDetections = sorted(response['TextDetections'], key=lambda x: x['Geometry']['BoundingBox']['Left']) 
-
-
-    confidence_threshold = 75  # Set your desired confidence threshold here
 
     # Create a dictionary to store digit information
     digit_info = {}
@@ -34,7 +32,7 @@ def show_text(photo, bucket):
     # calculate and display bounding boxes
     print('Detected text for ' + photo)
     totalDetectedText = len(textDetections)
-    print('Number of detected text: ' + textDetections)
+    print('Number of detected text: ' + str(totalDetectedText))
     for text in textDetections:
         print('Detected text:' + text['DetectedText'])
         print('Confidence: ' + "{:.2f}".format(text['Confidence']) + "%")
@@ -56,8 +54,7 @@ def show_text(photo, bucket):
         digit = text['DetectedText'].replace(" ", "")
         digit = ''.join('0' if not char.isdigit() else char for char in digit)
         left_position = round(text['Geometry']['BoundingBox']['Left'],2)
-        if not left_position in digit_info and int(digit)<10:
-            digit_info[left_position] = digit
+        digit_info[left_position] = digit
 
         box = text['Geometry']['BoundingBox']
         left = imgWidth * box['Left']
@@ -79,8 +76,9 @@ def show_text(photo, bucket):
         except:
             print("Couldn't draw")
 
-        # Alternatively can draw rectangle. However you can't set line width.
-        # draw.rectangle([left,top, left + width, top + height], outline='#00d400')
+    for x, value in digit_info.items():
+        
+
 
     image.show()
     print(digit_info)
@@ -93,10 +91,11 @@ def show_text(photo, bucket):
 
 def main():
     bucket = 'water-meter-images-test'
-    photo = 'test.jpg'
+    photo = 'images/TestDevice/30082023-112930.jpg'
     meter_number = show_text(photo, bucket)
     print("text detected: " + str(meter_number))
-    print("meter reading: " + str(int(meter_number)/1000) + " m^3")
+    if not meter_number == "":
+        print("meter reading: " + str(int(meter_number)/1000) + " m^3")
 
 if __name__ == "__main__":
     main()

@@ -4,7 +4,7 @@
 #include "esp_camera.h"
 #include <WiFiClient.h>
 #include "SPIFFS.h"
-#include "ESPAsyncWebServer.h"
+#include "ESPAsyncWebSrv.h"
 #include "WiFi.h"
 #include <ESPmDNS.h>
 #include "string.h"
@@ -22,13 +22,13 @@
 // unsigned long wifiCheckInterval = 60000;
 
 // Take Photo every interval
+#define SEND_AWS_EVERY_INTERVAL
 unsigned long picturePreviousMillis = 0;
-unsigned long pictureInterval = 60000*2;
+unsigned long pictureInterval = 60000*1;
 
 // Alert variables
 boolean takeNewPhoto = false;
 boolean sendToAWS = false;
-boolean sendToAWSEveryInterval = false;
 
 // Instantiate class variables
 AsyncWebServer server(80);
@@ -38,7 +38,6 @@ unsigned short cropLeft = 0;
 unsigned short cropTop = 0;
 unsigned short cropWidth = 0;
 unsigned short cropHeight = 0;
-short rotateAngle = 0;
 
 // For using external RAM with ArduinoJSON
 struct SpiRamAllocator {
@@ -232,10 +231,10 @@ void sendPhotoToS3(){
         // take and get encoded image, get formatted date to use as filename, package it as json, send to aws api
         http.begin(client, AWS_REST_API);
         http.addHeader("Content-Type", "application/json");
-        // http.addHeader("Content-Encoding", "base64");
         
         String encodedImage = takePicture();
 
+        String folderName = "TestDevice";
 
         // String dataToSend = "{\"S3Folder\": \"" + folderName + "\", \"base64Image\": \"" + encodedImage +"\"}";
         
@@ -245,7 +244,6 @@ void sendPhotoToS3(){
         doc["cropTop"] = cropTop;
         doc["cropWidth"] = cropWidth;
         doc["cropHeight"] = cropHeight;
-        doc["rotateDegrees"] = rotateAngle;
         doc["base64Image"] = encodedImage;
         String dataToSend;
         serializeJson(doc, dataToSend);
@@ -257,7 +255,7 @@ void sendPhotoToS3(){
             String response = http.getString();  //Get the response to the request
         
             Serial.print("Response code: "); Serial.println(httpResponseCode);   //Print return code
-            Serial.println(response);           //Print request answer
+            // Serial.println(response);           //Print request answer
         }
         else{
             Serial.print("Error on sending POST: ");
@@ -266,38 +264,11 @@ void sendPhotoToS3(){
     }
 }
 
-void testSend(){
-    // capture camera frame
-    camera_fb_t *fb = esp_camera_fb_get();
-    if(!fb) {
-        Serial.println("Camera capture failed");
-        return;
-    } else {
-        Serial.println("Camera capture successful!");
-    }
-
-    const char *data = (const char *)fb->buf;
-    // Image metadata
-    Serial.print("Size of image:");
-    Serial.println(fb->len);
-    Serial.print("Shape->width:");
-    Serial.print(fb->width);
-    Serial.print("height:");
-    Serial.println(fb->height);
-    Serial.println("\n\n");
-    
-    
-    
-
-    esp_camera_fb_return(fb);
-}
-
 void checkCropDim(){
     Serial.print("X: "); Serial.println(cropLeft);
     Serial.print("Y: "); Serial.println(cropTop);
     Serial.print("Width: "); Serial.println(cropWidth);
     Serial.print("Height: "); Serial.println(cropHeight); 
-    Serial.print("Rotate Degrees: "); Serial.println(rotateAngle);
 }
 
 void beginServer(){
@@ -311,21 +282,12 @@ void beginServer(){
         takeNewPhoto = true;
     });
 
-    server.on("/startInterval", HTTP_GET, [](AsyncWebServerRequest * request) {
-        request->send_P(200, "text/plain", "Sending to AWS every interval seconds");
-        sendToAWSEveryInterval = true;
-    });
-
-    server.on("/stopInterval", HTTP_GET, [](AsyncWebServerRequest * request) {
-        request->send_P(200, "text/plain", "Stopping AWS interval send");
-        sendToAWSEveryInterval = false;
-    });
-
     server.on("/saved-photo", HTTP_GET, [](AsyncWebServerRequest * request) {
         request->send(SPIFFS, FILE_PHOTO, "image/jpg", false);
     });
 
     server.on("/send-aws", HTTP_GET, [](AsyncWebServerRequest * request) {
+        Serial.println("sendAWS");
         request->send_P(200, "text/plain", "Sending to AWS");
         sendToAWS = true;
     });
@@ -335,12 +297,10 @@ void beginServer(){
         String top = request->getParam("cropTop")->value();
         String width = request->getParam("cropWidth")->value();
         String height = request->getParam("cropHeight")->value();
-        String rotate = request->getParam("rotate")->value();
         cropLeft = left.toInt();
         cropTop = top.toInt();
         cropWidth = width.toInt();
         cropHeight = height.toInt();
-        rotateAngle = rotate.toInt();
         request->send_P(200, "text/plain", "Received crop data");
         checkCropDim();
     });
@@ -430,7 +390,26 @@ void setup(){
 void loop(){
 
     unsigned long currentMillis = millis();
-    // if WiFi is down, try reconnecting every interval
+
+    #ifdef SEND_AWS_EVERY_INTERVAL
+    // take picture interval and recheck wifi
+    if(currentMillis - picturePreviousMillis >= pictureInterval){
+        // check wifi
+        if(WiFi.status() != WL_CONNECTED){
+            Serial.print(millis());
+            Serial.println("Reconnecting to WiFi...");
+            WiFi.disconnect();
+            WiFi.reconnect();
+        }
+
+        else{
+            sendPhotoToS3();
+            sendToAWS = false;
+        }
+        picturePreviousMillis = currentMillis;
+
+    }
+    #endif
 
     if (takeNewPhoto) {
         capturePhotoSaveSpiffs();
@@ -441,49 +420,5 @@ void loop(){
         sendToAWS = false;
     }
 
-
-    // take picture interval
-    if(currentMillis - picturePreviousMillis >= pictureInterval && sendToAWSEveryInterval){
-        // check wifi
-        if(WiFi.status() != WL_CONNECTED){
-            Serial.print(millis());
-            Serial.println("Reconnecting to WiFi...");
-            WiFi.disconnect();
-            WiFi.reconnect();
-        }
-
-        else{
-            HTTPClient http;
-
-            Serial.println("Sending to AWS");
-            // take and get encoded image, get formatted date to use as filename, package it as json, send to aws api
-            http.begin(client, AWS_REST_API);
-            http.addHeader("Content-Type", "application/json");
-            
-            String encodedImage = takePicture();
-
-            String folderName = "TestDevice";
-
-            String dataToSend = "{\"S3Folder\": \"" + folderName + "\",  \"base64Image\": \"" + encodedImage +"\"}";
-
-            // Serial.println(dataToSend);
-            int httpResponseCode = http.POST(dataToSend);
-            if(httpResponseCode>0){
-
-                String response = http.getString();  //Get the response to the request
-            
-                Serial.println(httpResponseCode);   //Print return code
-                Serial.println(response);           //Print request answer
-            }
-            else{
-                Serial.print("Error on sending POST: ");
-                Serial.println(httpResponseCode);
-            }
-        }
-        picturePreviousMillis = currentMillis;
-
-    }
-
     delay(2);
-
 }

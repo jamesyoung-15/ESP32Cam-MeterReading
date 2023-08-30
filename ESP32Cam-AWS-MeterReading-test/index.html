@@ -4,6 +4,7 @@
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.0/cropper.css" integrity="sha512-hBT8ir1rdidrjzYcDj50eQ5gglkAc1c7tmzpdkiGydrn3Tt3+cGJ+GdsXLYmwETdStY0JZXbv6p4jgGDQU0fMw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@1/css/pico.min.css">
+        <script src="https://kit.fontawesome.com/2e277278ff.js" crossorigin="anonymous"></script>
         <style>
             .header {
                 text-align:center;
@@ -23,20 +24,34 @@
             }
             canvas{
                 max-width: 100%;
-                margin-bottom: 30px;
+                max-height: 480px;
             }
             #photo {
                 width: 100%;
+                max-height: 640px;
             }
             .hidden{
                 display: none;
+            }
+            footer{
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+            footer a{
+                color: #0f91bc;
+                margin: 0 10px;
+            }
+            footer a:hover{
+                color: white;
+                text-decoration: none;
             }
         </style>
     </head>
     <body>
         <main class="container">
             <section class="header">
-                <h2>ESP32-CAM</h2>
+                <h1>ESP32-CAM Digital Meter Reader</h1>
                 <p>Press take photo to get image from ESP32-Cam, then press check photo to display image.</p>
             </section>
             <section class="button-container grid">
@@ -45,8 +60,7 @@
             </section>
             <section class="crop-container grid">
                 <div>
-                    <img src="saved-photo.jpeg" id="photo">
-                    <!-- <img src="../assets/testimages/watermeter.jpg" id="photo"> -->
+                    <img src="saved-photo.jpg" id="photo">
                 </div>
                 <div>
                     <table role="grid">
@@ -58,8 +72,8 @@
                         </thead>
                         <tbody>
                             <tr>
-                                <td id="esp32-crop-left"></td>
-                                <td id="esp32-crop-top"></td>
+                                <td><input type="number" id="esp32-crop-left"></td>
+                                <td><input type="number" id="esp32-crop-top"></td>
                             </tr>
                         </tbody>
                         <thead>
@@ -70,12 +84,13 @@
                         </thead>
                         <tbody>
                             <tr>
-                                <td id="esp32-crop-width"></td>
-                                <td id="esp32-crop-height"></td>
+                                <td> <input type="number" id ="esp32-crop-width"></td>
+                                <td> <input type="number" id="esp32-crop-height"></td>
                             </tr>
                         </tbody>
                     </table>
-                    <label>Rotate <span id="rotate-degrees">0</span>°<br><input type="range" step="1" min="-90" max="90" value="0" id="rotate-image"></label>
+                    <!-- <button id="apply-custom-crop">Apply Crop</button> -->
+                    <label>Rotate: <span id="rotate-degrees">0</span> Deg<br><input autocomplete="off" type="range" step="1" min="-90" max="90" value="0" id="rotate-image"></label>
                 </div>
             </section>
             <section class="button-container grid">
@@ -83,14 +98,21 @@
                 <a href="#" role="button" id="send-crop-data">Save Crop Dimensions</a>
                 <a href="#" role="button" id="send-aws">Test Send to AWS</a>
             </section>
+            <section class="button-container grid">
+                <a href="#" role="button" id="send-aws-interval">Start Sending in Intervals</a>
+                <a href="#" role="button" id="stop-aws-interval">Stop Sending in Intervals</a>
+                <a target="_blank" href="https://i8ave7ovua.execute-api.us-east-1.amazonaws.com/testv1/watermeter/alldata" role="button" id="reading-result">View Reading Results</a>
+            </section>
             <section class="grid">
                 <div id="crop-result"></div>
             </section>
-            <section class="button-container grid">
-                <a class="hidden" href="#" role="button" id="send-aws-interval">Start Interval Sending to AWS</a>
-                <a class="hidden" href="#" role="button" id="stop-aws-interval">Stop Interval Sending to AWS</a>
-            </section>
         </main>
+        <footer class="container">
+                <a target="_blank" href="https://github.com/jamesyoung-15/kolour-think-tank-internship"><i class="fa fa-github"></i> Source code</a>
+                <a href="https://github.com/jamesyoung-15/kolour-think-tank-internship" target="_blank"><i class="fa-solid fa-file"></i> Documentation/Usage Guide</a>
+                <a href=""><i class="fa-solid fa-business-time"></i> For Kolour Think Tank</a>
+          </footer>
+        
         <script src="https://code.jquery.com/jquery-3.7.0.min.js" integrity="sha256-2Pmvv0kuTBOenSvLm6bvfBSSHrUJ+3A7x6P5Ebd07/g=" crossorigin="anonymous"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.0/cropper.js" integrity="sha512-q9N9RDpXWA3HKu2spOTpZ0j64hL0kfwHQiCgGq9FUuVtTOn7K894cu3YQBtA6rz8T7gbAyuBo+sooxR+/sO4Lg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     </body>
@@ -106,22 +128,23 @@
             let rotateSlider = document.getElementById('rotate-image');
             let startIntervalSend = document.getElementById('send-aws-interval');
             let stopIntervalSend = document.getElementById('stop-aws-interval');
+            let viewResult = document.getElementById("reading-result");
             let cropper = new Cropper(image, {
                 zoomable: false,
                 rotatable: true,
                 // movable: false, 
                 ready: function (event) {
-                // Zoom the image to its natural size
-                cropper.zoomTo(1);
+                    // Zoom the image to its natural size
+                    cropper.zoomTo(1);
                 },
                 
                 crop: function (event) {
                     let cropData = cropper.getData();
                     // document.querySelector('#cropper-data').textContent = JSON.stringify(cropper.getData());
-                    document.querySelector('#esp32-crop-left').textContent = `${Math.round(cropData.x)}`; 
-                    document.querySelector('#esp32-crop-top').textContent = `${Math.round(cropData.y)}`;
-                    document.querySelector('#esp32-crop-height').textContent =`${Math.round(cropData.height)}`; 
-                    document.querySelector('#esp32-crop-width').textContent =`${Math.round(cropData.width)}`;
+                    document.querySelector('#esp32-crop-left').value = `${Math.round(cropData.x)}`; 
+                    document.querySelector('#esp32-crop-top').value = `${Math.round(cropData.y)}`;
+                    document.querySelector('#esp32-crop-height').value =`${Math.round(cropData.height)}`; 
+                    document.querySelector('#esp32-crop-width').value =`${Math.round(cropData.width)}`;
                 },
 
                 zoom: function (event) {
@@ -138,8 +161,9 @@
                 resultTitle.textContent = "Crop Result";
                 previewResult.appendChild(resultTitle);
                 previewResult.appendChild(cropper.getCroppedCanvas());
-                startIntervalSend.classList.remove("hidden");
-                stopIntervalSend.classList.remove("hidden");
+                // startIntervalSend.classList.remove("hidden");
+                // stopIntervalSend.classList.remove("hidden");
+                // viewResult.classList.remove("hidden");
             };
 
             sendCropData.onclick = () => {
@@ -184,6 +208,14 @@
                 xhr.open('GET', "/stopInterval", true);
                 xhr.send();
             }
+            // document.getElementById("apply-custom-crop").onclick = () => {
+            //     cropper.setData({
+            //         x: document.querySelector('#esp32-crop-left').value,
+            //         y: document.querySelector('#esp32-crop-top').value,
+            //         width: document.querySelector('#esp32-crop-width').value,
+            //         height: document.querySelector('#esp32-crop-height').value
+            //     })
+            // }
         });
     </script>
 </html>

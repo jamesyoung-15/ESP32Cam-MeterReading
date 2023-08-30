@@ -1,0 +1,9 @@
+{
+    "S3Folder": "$input.params('folder')",
+    "cropLeft": "$input.params('cropleft')",
+    "cropTop": "$input.params('croptop')",
+    "cropWidth": "$input.params('cropwidth')",
+    "cropHeight": "$input.params('cropheight')",
+    "rotateDegrees": "$input.params('rotation')",
+    "base64Image": "$input.body"
+}
