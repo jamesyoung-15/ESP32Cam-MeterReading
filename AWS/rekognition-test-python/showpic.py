@@ -33,6 +33,8 @@ def show_text(photo, bucket):
 
     # calculate and display bounding boxes
     print('Detected text for ' + photo)
+    totalDetectedText = len(textDetections)
+    print('Number of detected text: ' + textDetections)
     for text in textDetections:
         print('Detected text:' + text['DetectedText'])
         print('Confidence: ' + "{:.2f}".format(text['Confidence']) + "%")
@@ -91,7 +93,7 @@ def show_text(photo, bucket):
 
 def main():
     bucket = 'water-meter-images-test'
-    photo = 'images/TestDevice/28082023-170334.jpg'
+    photo = 'test.jpg'
     meter_number = show_text(photo, bucket)
     print("text detected: " + str(meter_number))
     print("meter reading: " + str(int(meter_number)/1000) + " m^3")
