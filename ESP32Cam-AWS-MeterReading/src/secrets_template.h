@@ -5,7 +5,6 @@
 #define WIFI_SSID "SSID"
 #define WIFI_PASSWD "PASSWORD"
 
-#define FILE_PHOTO "/photo.jpg"
 
 // ===================
 // Select camera model
@@ -39,7 +38,7 @@ const char AWS_API_CERT[] =
 "-----END CERTIFICATE-----";
 
 
-
+const char* FILE_PHOTO = "/photo.jpg";
 
 
 #endif

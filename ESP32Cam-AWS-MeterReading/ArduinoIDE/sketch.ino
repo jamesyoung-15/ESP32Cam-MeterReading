@@ -22,13 +22,13 @@
 // unsigned long wifiCheckInterval = 60000;
 
 // Take Photo every interval
-#define SEND_AWS_EVERY_INTERVAL
 unsigned long picturePreviousMillis = 0;
-unsigned long pictureInterval = 60000*1;
+unsigned long pictureInterval = 60000*2;
 
 // Alert variables
 boolean takeNewPhoto = false;
 boolean sendToAWS = false;
+boolean sendToAWSEveryInterval = false;
 
 // Instantiate class variables
 AsyncWebServer server(80);
@@ -36,26 +36,25 @@ WiFiClientSecure client;
 
 unsigned short cropLeft = 0; 
 unsigned short cropTop = 0;
-unsigned short cropWidth = 0;
-unsigned short cropHeight = 0;
+unsigned short cropWidth = 1600;
+unsigned short cropHeight = 1200;
+short rotateAngle = 0;
 
 // For using external RAM with ArduinoJSON
-struct SpiRamAllocator {
-  void* allocate(size_t size) {
-    return heap_caps_malloc(size, MALLOC_CAP_SPIRAM);
-  }
+// struct SpiRamAllocator {
+//   void* allocate(size_t size) {
+//     return heap_caps_malloc(size, MALLOC_CAP_SPIRAM);
+//   }
 
-  void deallocate(void* pointer) {
-    heap_caps_free(pointer);
-  }
+//   void deallocate(void* pointer) {
+//     heap_caps_free(pointer);
+//   }
 
-  void* reallocate(void* ptr, size_t new_size) {
-    return heap_caps_realloc(ptr, new_size, MALLOC_CAP_SPIRAM);
-  }
-};
-
-using SpiRamJsonDocument = BasicJsonDocument<SpiRamAllocator>;
-
+//   void* reallocate(void* ptr, size_t new_size) {
+//     return heap_caps_realloc(ptr, new_size, MALLOC_CAP_SPIRAM);
+//   }
+// };
+// using SpiRamJsonDocument = BasicJsonDocument<SpiRamAllocator>;
 
 void connectWifi(){
     // set to station mode
@@ -73,8 +72,6 @@ void connectWifi(){
     }
     Serial.println("Success!");
     Serial.print("IP Address: "); Serial.println(WiFi.localIP());
-
-    
 }
 
 void scanWifi(){
@@ -131,7 +128,7 @@ void cameraConfig() {
     config.fb_location = CAMERA_FB_IN_PSRAM;
     config.jpeg_quality = 10;
     config.fb_count = 2;
-    config.frame_size = FRAMESIZE_HD;
+    config.frame_size = FRAMESIZE_UXGA;
     config.grab_mode = CAMERA_GRAB_LATEST;
     // config.grab_mode = CAMERA_GRAB_WHEN_EMPTY;
 
@@ -218,49 +215,57 @@ String takePicture(){
 
 
 void sendPhotoToS3(){
-    // check wifi
+        // check wifi
     if(WiFi.status() != WL_CONNECTED){
-        Serial.println("Cannot send: Not connected to Wifi!");
-        return;
+            Serial.println("Cannot send: Not connected to Wifi!");
+            return;
     }
 
     else{
+        // capture camera frame
+        camera_fb_t *fb = esp_camera_fb_get();
+        if(!fb) {
+            Serial.println("Camera capture failed");
+            return;
+        } else {
+            Serial.println("Camera capture successful!");
+        }
+
+        const char *data = (const char *)fb->buf;
+        // Image metadata
+        Serial.print("Size of image:");
+        Serial.println(fb->len);
+        Serial.print("Shape->width:");
+        Serial.print(fb->width);
+        Serial.print("height:");
+        Serial.println(fb->height);
+        Serial.println("\n\n");
+    
         HTTPClient http;
 
         Serial.println("Sending to AWS");
         // take and get encoded image, get formatted date to use as filename, package it as json, send to aws api
-        http.begin(client, AWS_REST_API);
-        http.addHeader("Content-Type", "application/json");
+        String url = String(AWS_REST_API) + "/" + String(folderName) + "/" + String(cropLeft) + "/" + String(cropTop) + "/" + String(cropWidth) + "/" + String(cropHeight) + "/" + String(rotateAngle);
+        http.begin(client, url);
+        Serial.println(url);
+        http.addHeader("Content-Type", "image/jpg");
+        // http.addHeader("Content-Encoding", "base64");
+                
         
-        String encodedImage = takePicture();
-
-        String folderName = "TestDevice";
-
-        // String dataToSend = "{\"S3Folder\": \"" + folderName + "\", \"base64Image\": \"" + encodedImage +"\"}";
-        
-        SpiRamJsonDocument doc(128000);        
-        doc["S3Folder"] = folderName;
-        doc["cropLeft"] = cropLeft;
-        doc["cropTop"] = cropTop;
-        doc["cropWidth"] = cropWidth;
-        doc["cropHeight"] = cropHeight;
-        doc["base64Image"] = encodedImage;
-        String dataToSend;
-        serializeJson(doc, dataToSend);
-
         // Serial.println(dataToSend);
-        int httpResponseCode = http.POST(dataToSend);
+        int httpResponseCode = http.POST(fb->buf, fb->len);
         if(httpResponseCode>0){
 
             String response = http.getString();  //Get the response to the request
         
             Serial.print("Response code: "); Serial.println(httpResponseCode);   //Print return code
-            // Serial.println(response);           //Print request answer
+            Serial.println(response);           //Print request answer
         }
         else{
             Serial.print("Error on sending POST: ");
             Serial.print("Response code: "); Serial.println(httpResponseCode); 
         }
+        esp_camera_fb_return(fb);
     }
 }
 
@@ -269,6 +274,7 @@ void checkCropDim(){
     Serial.print("Y: "); Serial.println(cropTop);
     Serial.print("Width: "); Serial.println(cropWidth);
     Serial.print("Height: "); Serial.println(cropHeight); 
+    Serial.print("Rotate Degrees: "); Serial.println(rotateAngle);
 }
 
 void beginServer(){
@@ -282,12 +288,23 @@ void beginServer(){
         takeNewPhoto = true;
     });
 
-    server.on("/saved-photo", HTTP_GET, [](AsyncWebServerRequest * request) {
+    server.on("/startInterval", HTTP_GET, [](AsyncWebServerRequest * request) {
+        request->send_P(200, "text/plain", "Sending to AWS every interval seconds");
+        sendToAWSEveryInterval = true;
+        Serial.print("Will start sending pictures to AWS every "); Serial.print(pictureInterval); Serial.println(" millisec");
+    });
+
+    server.on("/stopInterval", HTTP_GET, [](AsyncWebServerRequest * request) {
+        request->send_P(200, "text/plain", "Stopping AWS interval send");
+        sendToAWSEveryInterval = false;
+        Serial.println("Stop sending to AWS in intervals");
+    });
+
+    server.on("/saved-photo.jpg", HTTP_GET, [](AsyncWebServerRequest * request) {
         request->send(SPIFFS, FILE_PHOTO, "image/jpg", false);
     });
 
     server.on("/send-aws", HTTP_GET, [](AsyncWebServerRequest * request) {
-        Serial.println("sendAWS");
         request->send_P(200, "text/plain", "Sending to AWS");
         sendToAWS = true;
     });
@@ -297,10 +314,12 @@ void beginServer(){
         String top = request->getParam("cropTop")->value();
         String width = request->getParam("cropWidth")->value();
         String height = request->getParam("cropHeight")->value();
+        String rotate = request->getParam("rotate")->value();
         cropLeft = left.toInt();
         cropTop = top.toInt();
         cropWidth = width.toInt();
         cropHeight = height.toInt();
+        rotateAngle = rotate.toInt();
         request->send_P(200, "text/plain", "Received crop data");
         checkCropDim();
     });
@@ -309,7 +328,6 @@ void beginServer(){
     // Start server
     server.begin();
 }
-
 
 // Check if photo capture was successful
 bool checkPhoto( fs::FS &fs ) {
@@ -363,14 +381,9 @@ void capturePhotoSaveSpiffs( void ) {
 
 void setup(){
     Serial.begin(115200);
+    Serial.println("Configuring...");
     delay(500);
-    // scanWifi();
-    // delay(500);
-    connectWifi();
-    delay(500);
-    cameraConfig();
-    delay(500);
-
+    // For init internal ESP32 file system
     if (!SPIFFS.begin(true)) {
         Serial.println("An Error has occurred while mounting SPIFFS");
         ESP.restart();
@@ -379,21 +392,27 @@ void setup(){
         delay(500);
         Serial.println("SPIFFS mounted successfully");
     }
-
+    cameraConfig();
+    delay(500);
+    capturePhotoSaveSpiffs();
+    delay(2000);
+    // scanWifi();
+    // delay(500);
+    connectWifi();
+    delay(500);
+    delay(100);
     beginServer();
-
+    delay(100);
     client.setInsecure(); // NOT RECOMMENDED, use a proper cert in production
-
+    Serial.println("Ready to use!\n");
 }
 
 
 void loop(){
-
     unsigned long currentMillis = millis();
-
-    #ifdef SEND_AWS_EVERY_INTERVAL
-    // take picture interval and recheck wifi
-    if(currentMillis - picturePreviousMillis >= pictureInterval){
+    // if WiFi is down, try reconnecting every interval
+    // take picture interval
+    if(currentMillis - picturePreviousMillis >= pictureInterval && sendToAWSEveryInterval){
         // check wifi
         if(WiFi.status() != WL_CONNECTED){
             Serial.print(millis());
@@ -409,7 +428,6 @@ void loop(){
         picturePreviousMillis = currentMillis;
 
     }
-    #endif
 
     if (takeNewPhoto) {
         capturePhotoSaveSpiffs();
