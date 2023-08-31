@@ -49,6 +49,7 @@ def lambda_handler(event, context):
             print('Type:' + text['Type'])
             print()
             
+            # ignore detected text with parentID as they are sort of like alternative words detected in the same region
             # cleanup: replace spaces, replace non-digit text with 0s (eg. sometimes 0 is detected as U)
             if not 'ParentId' in text:
                 digit = text['DetectedText'].replace(" ", "")
@@ -56,7 +57,7 @@ def lambda_handler(event, context):
                 left_position = round(text['Geometry']['BoundingBox']['Left'],2)
                 digit_info[left_position] = str(digit)
             
-            # for drawing bounding boxes to visualize result
+            # This part is for visualizing and storing the Rekognition result to a new image
             box = text['Geometry']['BoundingBox']
             left = imgWidth * box['Left']
             top = imgHeight * box['Top']
@@ -77,20 +78,23 @@ def lambda_handler(event, context):
             except:
                 print("Couldn't draw")
 
-    
-        number = ""
-        for num in digit_info.values():
-            number+=num
-        
-        print("Number: "+number)
-
+        # storing the new image of Rekognition result visualization into another folder
         img_bytes = BytesIO()
         image.save(img_bytes, format='JPEG')
         img_bytes = img_bytes.getvalue()
         # Store in folder rekognition_result instead of at pic_taken
         filename = key.replace("/pic_taken", "/rekognition_result")
-        s3.upload_fileobj(BytesIO(img_bytes), 'water-meter-images-test', filename)
+        # Change 'water-meter-images-test' to your S3 Bucket
+        s3.upload_fileobj(BytesIO(img_bytes), 'water-meter-images-test', filename) 
+
+        # store digits into number
+        number = ""
+        for num in digit_info.values():
+            number+=num
         
+        print("Number: "+number)
+        
+        # Insert data to DynamoDB
         insertDataToDb(number, key)
     
     except Exception as e:
@@ -100,11 +104,13 @@ def lambda_handler(event, context):
               
 
 def insertDataToDb(number, key):
+    # Generate the entry id from the time part photo filename (ie. images/pic_taken/31082023-143811.jpg becomes 31082023-143811) 
     id = key.rsplit('/', 1)[-1]
     id = id.replace('.jpg','')
     dynamodb = boto3.resource('dynamodb')
     #table name
-    table = dynamodb.Table('water-meter-readings-db')
+    table = dynamodb.Table('water-meter-readings-db') # Change this to your DynamoDB
+    # If there is some issue with reading number, just give it 0
     if number == "":
         number = 0
     #inserting values into table

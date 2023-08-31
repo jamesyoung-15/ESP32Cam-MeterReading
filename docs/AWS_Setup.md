@@ -46,7 +46,29 @@ The first function is triggered when an image received from ESP32-CAM, where it 
 
 
 ## Create API Gateway for Uploading Images
+1. Go to API Gateway service and press `Create API`. Choose `RestAPI` and press `build`. Make sure protocol is REST and choose New API. Give the API a name and press `Create API`. You should be redirected to resources page.
 
+2. Go to settings under API: your-api-name. Scroll down to `Binary Media Types`, click `Add Binary Media Types`, then enter `image/jpg` and press check and `save changes`.
+
+3. Go back to `resources`, under `actions` press `create resource`. Give it the name `cropLeft` and for `resource path` set it to `{cropLeft}`. Repeat this in this order `cropTop`, `cropWidth`, `cropHeight`, and `rotation`. Make sure the resource path of these have squiggly brackets {}. 
+
+4. Under `rotation` resource, press `actions` and `create method`. Select POST and press check. In the Lambda function select the previous Lambda function you created for uploading to S3.
+
+5. Press on the `POST` method again and then select `Integration Request`. Go down to `Mapping Templates`, select `When there are no templates defined (recommended)`, then add content-type `image/jpg`. Then enter the JSON below and create the template:
+``` JSON
+{
+    "cropLeft": "$input.params('cropleft')",
+    "cropTop": "$input.params('croptop')",
+    "cropWidth": "$input.params('cropwidth')",
+    "cropHeight": "$input.params('cropheight')",
+    "rotateDegrees": "$input.params('rotation')",
+    "base64Image": "$input.body"
+}
+```
+
+6. Press `actions` and then press `deploy api`. In `Deployment Stage` press `new stage` and then give it a short name, then `deploy`. The API is now up and running. You will need the link in the ESP32-CAM code in the variable `AWS_REST_API` in your [`secrets.h`](../ESP32Cam-AWS-MeterReading/src/secrets_template.h).
+
+7. For testing, a client certificate is not necessary. However in production or for good practice use a client certificate by generating it in `Client Certificate` and then copy and paste the content to the variable `AWS_API_CERT` in your `secrets.h`.
 
 ## Stop and Check
 At this point, we have the necessary parts for the ESP32-CAM to upload images to S3 Bucket. You can test this part first to make sure it is working.

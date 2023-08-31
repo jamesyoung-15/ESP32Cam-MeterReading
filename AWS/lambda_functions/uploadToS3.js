@@ -8,7 +8,7 @@ let s3 = new AWS.S3();
 exports.handler = (event, context, callback) => {
     // Obtain the crop data from url entered by ESP32-CAM
     let rotateAngle = parseInt(event.rotateDegrees);
-    let Folder = event.S3Folder;
+    // let Folder = event.S3Folder;
     let Filename = getFormattedTime();
     let x = parseInt(event.cropLeft);
     let y = parseInt(event.cropTop);
