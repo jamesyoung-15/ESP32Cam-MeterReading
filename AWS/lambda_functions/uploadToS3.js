@@ -1,35 +1,42 @@
+// Load modules
 const AWS = require('aws-sdk');
 const sharp = require('sharp');
 
 let s3 = new AWS.S3();
 
-
+// main lambda function
 exports.handler = (event, context, callback) => {
+    // Obtain the crop data from url entered by ESP32-CAM
     let rotateAngle = parseInt(event.rotateDegrees);
-    let encodedImage = event.base64Image;
     let Folder = event.S3Folder;
     let Filename = getFormattedTime();
     let x = parseInt(event.cropLeft);
     let y = parseInt(event.cropTop);
     let width = parseInt(event.cropWidth);
     let height = parseInt(event.cropHeight);
+
+    // Get the encoded image
+    let encodedImage = event.base64Image;
     // console.log("Event is ", event);
     // console.log("Copying event body of ", encodedImage);
     
 
     console.log(`Cropping dimension: x = ${x}, y = ${y}, height = ${height}, width = ${width}`)
 
+    // Use Sharp on the image with crop data
     const imageBuffer = Buffer.from(encodedImage, 'base64');
     sharp(imageBuffer)
     .rotate(rotateAngle)
     .extract({ width: width, height: height, left: x, top: y })
     .toBuffer({ resolveWithObject: true })
     .then(({ data, info }) => {
+        // Save the cropped photo to S3 Bucket
+
         // let filePath = "images/" + Folder + "/pic_taken/" + Filename + ".jpg";
         let filePath = "images/pic_taken/" + Filename + ".jpg";
         let params = {
             "Body": data,
-            "Bucket": "water-meter-images-test",
+            "Bucket": "water-meter-images-test", // Change to your bucket
             "Key": filePath  
         };
         s3.upload(params, function(err, doc){
@@ -53,7 +60,7 @@ exports.handler = (event, context, callback) => {
     
 };
 
-
+// For getting current time, used to generate filename
 let getFormattedTime = () => {
     // Set timezone specfically to HK, output looks like: 25/08/2023, 11:04:44
     let timeNow = new Date().toLocaleString("en-GB", {timeZone: "Asia/Hong_Kong"});

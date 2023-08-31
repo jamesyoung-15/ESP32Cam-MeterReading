@@ -19,15 +19,9 @@ This is for quick setup, for better setup see [AWS Guide](https://docs.aws.amazo
 ## Create S3 Bucket
 Go to S3 Bucket. Press `Create a Bucket`, give it a name, select a region, and then scroll down and press `create bucket`. You need to provide the Bucket name later in the Lambda code below.
 
-## Create DynamoDB Table
+## ESP32-CAM-Image-to-S3 Lambda Function
+The first function is triggered when an image received from ESP32-CAM, where it will decode the image, crop the image with Sharp, and then store it in a S3 Bucket. Since this part uses Sharp which isn't included in Lambda, this [Lambda layer is used](https://github.com/Umkus/lambda-layer-sharp).
 
-
-## Setup Lambda Functions
-The project uses two Lambda functions. The first function is triggered when an image received from ESP32-CAM, where it will decode the image, crop the image with Sharp, and then store it in a S3 Bucket. Since this part uses Sharp which isn't included in Lambda, this [Lambda layer is used](https://github.com/Umkus/lambda-layer-sharp).
-
-The second function is triggered when the image is stored in the S3 Bucket. Here, the function will call Rekognition to perform text detection, get the meter reading based on that, then store it in a DynamoDB table. Again we will need another [layer for Pillow](https://github.com/keithrozario/Klayers/tree/master/deployments/python3.8).
-
-### ESP32-CAM-Image-to-S3 Lambda Function
 1. To setup, search and go to Lambda service. 
 
 2. Press `create a function` and give it a name. 
@@ -42,15 +36,28 @@ The second function is triggered when the image is stored in the S3 Bucket. Here
 
 7. Go back to AWS Lambda. On the left bar, press `layers` under `Additional Resources`. 
 
-7. Press `Create Layer`, give it a name, press `upload` and upload the `sharp-layer.zip`. Then press `create`.
+8. Press `Create Layer`, give it a name, press `upload` and upload the `sharp-layer.zip`. Then press `create`.
 
-8. Go to `Functions` in left bar of Lambda and press into the function you created earlier. Scroll down till you see layers, press `Add a layer`, press `custom layers`, then select the Sharp layer and add it.
+9. Go to `Functions` in left bar of Lambda and press into the function you created earlier. Scroll down till you see layers, press `Add a layer`, press `custom layers`, then select the Sharp layer and add it.
 
-9. Go to `Configurations` and then go to `Permissions` on the left. Under click the role link under `Role name` in `Execution Role`. This will redirect you to IAM Management. 
+10. Go to `Configurations` and then go to `Permissions` on the left. Under click the role link under `Role name` in `Execution Role`. This will redirect you to IAM Management. 
 
-10. Press `Add Permissions` and `Attach Policies`, then search `S3`. Click `AmazonS3FullAccess` and add it. Optionally attach another policy called `CloudWatchLogsFullAccess` to see logs with CloudWatch. This will give Lambda permission to access these services.
+11. Press `Add Permissions` and `Attach Policies`, then search `S3`. Click `AmazonS3FullAccess` and add it. Optionally attach another policy called `CloudWatchLogsFullAccess` to see logs with CloudWatch. This will give Lambda permission to access these services.
 
-### S3-Trigger-Rekognition Lambda Function
+
+## Create API Gateway for Uploading Images
+
+
+## Stop and Check
+At this point, we have the necessary parts for the ESP32-CAM to upload images to S3 Bucket. You can test this part first to make sure it is working.
+
+
+## Create DynamoDB Table
+Go to DynamoDB service. Press `Create table` and give it a name. For partition key my code uses the name `id` with String. If you would like to change this just remember to change the Lambda code as well. Then press `create table`.
+
+## S3-Trigger-Rekognition Lambda Function
+The second function is triggered when the image is stored in the S3 Bucket. Here, the function will call Rekognition to perform text detection, get the meter reading based on that, then store it in a DynamoDB table. Again we will need another [layer for Pillow](https://github.com/keithrozario/Klayers/tree/master/deployments/python3.8).
+
 1. To setup, search and go to Lambda service. 
 
 2. Press `create a function` and give it a name. 
@@ -70,5 +77,5 @@ The second function is triggered when the image is stored in the S3 Bucket. Here
 
 9. Press `Add Permissions` and `Attach Policies`, then search and select `AmazonDynamoDBFullAccess` and add it. Also search and add `AmazonRekognitionFullAccess`. This will give Lambda permission to access these services.
 
-## API Gateway
+## Create API Gateway for Acessing DynamoDB
 

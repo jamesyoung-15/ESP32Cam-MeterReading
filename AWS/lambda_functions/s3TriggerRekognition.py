@@ -114,3 +114,4 @@ def insertDataToDb(number, key):
             'numberRead': str(number),
         }
     )
+    
