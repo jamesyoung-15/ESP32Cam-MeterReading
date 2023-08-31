@@ -26,3 +26,8 @@ pio run --target upload --upload-port /dev/ttyUSB0
 ```
 - You can use a serial monitor program to check serial logs or run `pio device monitor` w/ PlatformIO CLI.
 
+- Or as one command: 
+``` bash
+pio run --target upload --upload-port /dev/ttyUSB0 && pio device monitor
+```
+

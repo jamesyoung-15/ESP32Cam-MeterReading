@@ -120,8 +120,8 @@ void cameraConfig() {
     config.pin_sccb_scl = SIOC_GPIO_NUM;
     config.pin_pwdn = PWDN_GPIO_NUM;
     config.pin_reset = RESET_GPIO_NUM;
-    config.xclk_freq_hz = 20000000;
 
+    config.xclk_freq_hz = 20000000;
     /* Camera Settings */
     config.pixel_format = PIXFORMAT_JPEG; // good for most use cases 
     // config.pixel_format = PIXFORMAT_RGB565; // if cropping, use this
@@ -180,40 +180,6 @@ void cameraConfig() {
 
 }
 
-/* Takes picture with camera and returns base64 encoded image */
-String takePicture(){
-    // capture camera frame
-    camera_fb_t *fb = esp_camera_fb_get();
-    if(!fb) {
-        Serial.println("Camera capture failed");
-        return "Error";
-    } else {
-        Serial.println("Camera capture successful!");
-    }
-
-    const char *data = (const char *)fb->buf;
-    // Image metadata
-    Serial.print("Size of image:");
-    Serial.println(fb->len);
-    Serial.print("Shape->width:");
-    Serial.print(fb->width);
-    Serial.print("height:");
-    Serial.println(fb->height);
-    Serial.println("\n\n");
-    
-    
-    // encode buffer to base64
-    String encoded = base64::encode(fb->buf, fb->len);
-
-    // Serial.println(encoded);
-    // Serial.println("\n\n\n");
-
-    esp_camera_fb_return(fb);
-    
-    return encoded;
-}
-
-
 void sendPhotoToS3(){
         // check wifi
     if(WiFi.status() != WL_CONNECTED){
@@ -270,6 +236,7 @@ void sendPhotoToS3(){
 }
 
 void checkCropDim(){
+    Serial.println("Received crop data of: ");
     Serial.print("X: "); Serial.println(cropLeft);
     Serial.print("Y: "); Serial.println(cropTop);
     Serial.print("Width: "); Serial.println(cropWidth);
@@ -301,12 +268,14 @@ void beginServer(){
     });
 
     server.on("/saved-photo.jpg", HTTP_GET, [](AsyncWebServerRequest * request) {
+        Serial.println("Sending photo");
         request->send(SPIFFS, FILE_PHOTO, "image/jpg", false);
     });
 
     server.on("/send-aws", HTTP_GET, [](AsyncWebServerRequest * request) {
         request->send_P(200, "text/plain", "Sending to AWS");
         sendToAWS = true;
+        Serial.println("Start sending to AWS in intervals");
     });
 
     server.on("/cropData", HTTP_GET, [](AsyncWebServerRequest * request) {

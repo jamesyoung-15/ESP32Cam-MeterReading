@@ -5,25 +5,28 @@ let s3 = new AWS.S3();
 
 
 exports.handler = (event, context, callback) => {
-
+    let rotateAngle = parseInt(event.rotateDegrees);
     let encodedImage = event.base64Image;
     let Folder = event.S3Folder;
     let Filename = getFormattedTime();
-    let x = event.cropLeft;
-    let y = event.cropTop;
-    let width = event.cropWidth;
-    let height = event.cropHeight;
+    let x = parseInt(event.cropLeft);
+    let y = parseInt(event.cropTop);
+    let width = parseInt(event.cropWidth);
+    let height = parseInt(event.cropHeight);
     // console.log("Event is ", event);
     // console.log("Copying event body of ", encodedImage);
+    
 
     console.log(`Cropping dimension: x = ${x}, y = ${y}, height = ${height}, width = ${width}`)
 
     const imageBuffer = Buffer.from(encodedImage, 'base64');
     sharp(imageBuffer)
+    .rotate(rotateAngle)
     .extract({ width: width, height: height, left: x, top: y })
     .toBuffer({ resolveWithObject: true })
     .then(({ data, info }) => {
-        let filePath = "images/" + Folder + "/" + Filename + ".jpg";
+        // let filePath = "images/" + Folder + "/pic_taken/" + Filename + ".jpg";
+        let filePath = "images/pic_taken/" + Filename + ".jpg";
         let params = {
             "Body": data,
             "Bucket": "water-meter-images-test",

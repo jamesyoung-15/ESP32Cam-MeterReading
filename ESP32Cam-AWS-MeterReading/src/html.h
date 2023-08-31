@@ -6,6 +6,10 @@ const char index_html[] PROGMEM = R"rawliteral(
 <html>
     <head>
         <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta charset="UTF-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <title>ESP32-CAM Meter Reading</title>
+        <script src="https://kit.fontawesome.com/2e277278ff.js" crossorigin="anonymous"></script>
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.0/cropper.css" integrity="sha512-hBT8ir1rdidrjzYcDj50eQ5gglkAc1c7tmzpdkiGydrn3Tt3+cGJ+GdsXLYmwETdStY0JZXbv6p4jgGDQU0fMw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@1/css/pico.min.css">
         <style>
@@ -25,33 +29,53 @@ const char index_html[] PROGMEM = R"rawliteral(
             .crop-container{
                 margin: 20px auto;
             }
+            .cropper-area{
+                margin-bottom: 20px;
+            }
             canvas{
                 max-width: 100%;
-                margin-bottom: 30px;
+                max-height: 480px;
             }
             #photo {
                 width: 100%;
+                max-height: 640px;
             }
             .hidden{
                 display: none;
+            }
+            footer{
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+            }
+            .footer-docs{
+                display: flex;
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            footer a{
+                color: #0f91bc;
+                margin: 0 10px;
+            }
+            footer a:hover{
+                color: white;
+                text-decoration: none;
             }
         </style>
     </head>
     <body>
         <main class="container">
             <section class="header">
-                <h2>ESP32-CAM</h2>
+                <h1>ESP32-CAM Digital Meter Reader</h1>
                 <p>Press take photo to get image from ESP32-Cam, then press check photo to display image.</p>
             </section>
-            <section class="button-container grid">
-                <a href="#" role="button" id="capture-photo">Take Photo</a>
-                <a href="#" role="button" onclick="location.reload()">Check Photo</a>
-            </section>
             <section class="crop-container grid">
-                <div>
-                    <img src="saved-photo.jpg" id="photo">
+                <div class="cropper-area">
+                    <img src="saved-photo.jpg" id="photo" alt="Images sometimes take a few seconds to load. Try Refreshing">
                 </div>
                 <div>
+                    <button id="capture-photo" aria-busy="false">Take New Photo</button>
+                    <br>
                     <table role="grid">
                         <thead>
                             <tr>
@@ -86,19 +110,31 @@ const char index_html[] PROGMEM = R"rawliteral(
                 <a href="#" role="button" id="send-crop-data">Save Crop Dimensions</a>
                 <a href="#" role="button" id="send-aws">Test Send to AWS</a>
             </section>
+            <section class="button-container grid">
+                <a href="#" role="button" id="send-aws-interval">Start Sending in Intervals</a>
+                <a href="#" role="button" id="stop-aws-interval">Stop Sending in Intervals</a>
+                <a target="_blank" href="https://i8ave7ovua.execute-api.us-east-1.amazonaws.com/testv1/watermeter/alldata" role="button" id="reading-result">View Reading Results</a>
+            </section>
             <section class="grid">
                 <div id="crop-result"></div>
             </section>
-            <section class="button-container grid">
-                <a class="hidden" href="#" role="button" id="send-aws-interval">Start Interval Sending to AWS</a>
-                <a class="hidden" href="#" role="button" id="stop-aws-interval">Stop Interval Sending to AWS</a>
-            </section>
         </main>
+        <footer class="container">
+            <div class="footer-docs">
+                <a target="_blank" href="https://github.com/jamesyoung-15/kolour-think-tank-internship"><i class="fa fa-github"></i> Source code</a>
+                <a href="https://github.com/jamesyoung-15/kolour-think-tank-internship" target="_blank"><i class="fa-solid fa-file"></i> Documentation/Usage Guide</a>
+            </div>
+            <div>
+                <a href="https://www.kolourthinktank.com/" target="_blank"><i class="fa-solid fa-business-time"></i> For Kolour Think Tank</a>
+            </div>    
+        </footer>
+        
         <script src="https://code.jquery.com/jquery-3.7.0.min.js" integrity="sha256-2Pmvv0kuTBOenSvLm6bvfBSSHrUJ+3A7x6P5Ebd07/g=" crossorigin="anonymous"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.0/cropper.js" integrity="sha512-q9N9RDpXWA3HKu2spOTpZ0j64hL0kfwHQiCgGq9FUuVtTOn7K894cu3YQBtA6rz8T7gbAyuBo+sooxR+/sO4Lg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     </body>
     <script>
         window.addEventListener('DOMContentLoaded', function () {
+            // DOM Elements
             let image = document.querySelector('#photo');
             let cropPreview = document.getElementById('crop-button');
             let previewResult = document.getElementById('crop-result');
@@ -109,24 +145,25 @@ const char index_html[] PROGMEM = R"rawliteral(
             let rotateSlider = document.getElementById('rotate-image');
             let startIntervalSend = document.getElementById('send-aws-interval');
             let stopIntervalSend = document.getElementById('stop-aws-interval');
+            let viewResult = document.getElementById("reading-result");
+            let getPhoto = document.getElementById("fetch-photo");
+        
+            // Cropper JS
             let cropper = new Cropper(image, {
                 zoomable: false,
                 rotatable: true,
-                // movable: false, 
                 ready: function (event) {
                     // Zoom the image to its natural size
                     cropper.zoomTo(1);
                 },
-                
+                // Show crop data on change
                 crop: function (event) {
                     let cropData = cropper.getData();
-                    // document.querySelector('#cropper-data').textContent = JSON.stringify(cropper.getData());
                     document.querySelector('#esp32-crop-left').value = `${Math.round(cropData.x)}`; 
                     document.querySelector('#esp32-crop-top').value = `${Math.round(cropData.y)}`;
                     document.querySelector('#esp32-crop-height').value =`${Math.round(cropData.height)}`; 
                     document.querySelector('#esp32-crop-width').value =`${Math.round(cropData.width)}`;
                 },
-
                 zoom: function (event) {
                     // Keep the image in its natural size
                     if (event.detail.oldRatio === 1) {
@@ -135,19 +172,26 @@ const char index_html[] PROGMEM = R"rawliteral(
                 },
             });
 
+            // Rotate image slider
+            rotateSlider.onchange = () => {
+                document.getElementById("rotate-degrees").innerHTML = rotateSlider.value;
+                console.log("rotate ", rotateSlider.value);
+                cropper.rotateTo(rotateSlider.value);
+            }
+
+            // Crop Preview Button
             cropPreview.onclick = () => {
                 previewResult.innerHTML = '';
                 let resultTitle = document.createElement("h3");
                 resultTitle.textContent = "Crop Result";
                 previewResult.appendChild(resultTitle);
                 previewResult.appendChild(cropper.getCroppedCanvas());
-                startIntervalSend.classList.remove("hidden");
-                stopIntervalSend.classList.remove("hidden");
             };
 
-            sendCropData.onclick = () => {
-                // convert crop data and store in json
+            // Save crop data to device
+            sendCropData.onclick = async () => {
                 let cropData = cropper.getData();
+                // convert crop data and store in json
                 let cropLeft = Math.round(cropData.x);
                 let cropTop = Math.round(cropData.y);
                 let cropBottom = Math.round(image.naturalHeight - (cropData.y+cropData.height));
@@ -156,38 +200,85 @@ const char index_html[] PROGMEM = R"rawliteral(
                 let cropWidth = cropData.width;
                 let rotateValue = rotateSlider.value;
 
-                let xhr = new XMLHttpRequest();
-                xhr.open('GET', `/cropData?cropLeft=${cropLeft}&cropTop=${cropTop}&cropWidth=${cropWidth}&cropHeight=${cropHeight}&rotate=${rotateValue}`, true);
-                xhr.send();
+                const response = await fetch(`/cropData?cropLeft=${cropLeft}&cropTop=${cropTop}&cropWidth=${cropWidth}&cropHeight=${cropHeight}&rotate=${rotateValue}`);
+                if(response.ok){
+                    alert("Sucessfully sent crop data!");
+                }
+                else{
+                    alert("Failed to send crop data.");
+                }
                 
             }
-            sendAWSButton.onclick = () => {
-                console.log("Tell ESP32 to send to AWS");
-                let xhr = new XMLHttpRequest();
-                xhr.open('GET', "/send-aws", true);
-                xhr.send();
+            
+            // Tell ESP32 to capture image
+            capturePhoto.onclick = async () => {
+                const response = await fetch('/capture',{
+                    method: "GET"
+                });
+                capturePhoto.setAttribute("aria-busy", "true");
+                capturePhoto.textContent = "Loading. This will take a few seconds...";
+                // Wait 5 seconds as camera may take a while if using max 1600x1200 resolution
+                await new Promise(r => setTimeout(r, 5000));
+                if(!response.ok){
+                    alert("Network error.");
+                    throw new Error("Network response was not OK");
+                }
+                try {
+                    const response = await fetch("/saved-photo.jpg");
+                    if (!response.ok) {
+                        throw new Error("Network response was not OK");
+                    }
+                    const myBlob = await response.blob();
+                    const imageURL = URL.createObjectURL(myBlob);
+                    image.src = imageURL;
+                    cropper.replace(imageURL);
+                } catch (error) {
+                    console.error("There has been a problem with your fetch operation:", error);
+                }
+                capturePhoto.textContent = "Take New Photo";
+                capturePhoto.setAttribute("aria-busy", "false");
+                
             }
-            capturePhoto.onclick = () => {
-                let xhr = new XMLHttpRequest();
-                xhr.open('GET', "/capture", true);
-                xhr.send();
+
+            // Test send to AWS
+            sendAWSButton.onclick = async () => {
+                sendAWSButton.setAttribute("aria-busy", "true");
+                const response = await fetch('/send-aws');
+                if(response.ok){
+                    alert("Sucessfully sent command!");
+                }
+                else{
+                    alert("Failed to send command.");
+                }
+                sendAWSButton.setAttribute("aria-busy", "false");
             }
-            rotateSlider.onchange = () => {
-                document.getElementById("rotate-degrees").innerHTML = rotateSlider.value;
-                console.log("rotate ", rotateSlider.value);
-                cropper.rotateTo(rotateSlider.value);
+
+            // Send images in interval
+            startIntervalSend.onclick = async () => {
+                startIntervalSend.setAttribute("aria-busy", "true");
+                const response = await fetch('/startInterval');
+                if(response.ok){
+                    alert("Sucessfully sent command!");
+                }
+                else{
+                    alert("Failed to send command.");
+                }
+                startIntervalSend.setAttribute("aria-busy", "false");
             }
-            startIntervalSend.onclick = () => {
-                let xhr = new XMLHttpRequest();
-                xhr.open('GET', "/startInterval", true);
-                xhr.send();
-            }
-            stopIntervalSend.onclick = () => {
-                let xhr = new XMLHttpRequest();
-                xhr.open('GET', "/stopInterval", true);
-                xhr.send();
+            // Stop sending in interval
+            stopIntervalSend.onclick = async () => {
+                stopIntervalSend.setAttribute("aria-busy", "true");
+                const response = await fetch('/stopInterval');
+                if(response.ok){
+                    alert("Sucessfully sent command!");
+                }
+                else{
+                    alert("Failed to send command.");
+                }
+                stopIntervalSend.setAttribute("aria-busy", "false");
             }
         });
+
     </script>
 </html>
 )rawliteral";

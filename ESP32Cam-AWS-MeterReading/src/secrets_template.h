@@ -5,6 +5,8 @@
 #define WIFI_SSID "SSID"
 #define WIFI_PASSWD "PASSWORD"
 
+// S3 Bucket folder name to store image in
+const char* folderName = "TestDevice";
 
 // ===================
 // Select camera model

@@ -23,7 +23,6 @@ def show_text(photo, bucket):
 
     # Create a dictionary to store digit information
     digit_info = {}
-    # previousValue = 0
 
     # Setup canvas for displaying results
     imgWidth, imgHeight = image.size
@@ -50,11 +49,11 @@ def show_text(photo, bucket):
 
         
         print()
-
-        digit = text['DetectedText'].replace(" ", "")
-        digit = ''.join('0' if not char.isdigit() else char for char in digit)
-        left_position = round(text['Geometry']['BoundingBox']['Left'],2)
-        digit_info[left_position] = digit
+        if not 'ParentId' in text:
+            digit = text['DetectedText'].replace(" ", "")
+            digit = ''.join('0' if not char.isdigit() else char for char in digit)
+            left_position = round(text['Geometry']['BoundingBox']['Left'],2)
+            digit_info[left_position] = str(digit)
 
         box = text['Geometry']['BoundingBox']
         left = imgWidth * box['Left']
@@ -76,7 +75,6 @@ def show_text(photo, bucket):
         except:
             print("Couldn't draw")
 
-    for x, value in digit_info.items():
         
 
 
@@ -91,7 +89,7 @@ def show_text(photo, bucket):
 
 def main():
     bucket = 'water-meter-images-test'
-    photo = 'images/TestDevice/30082023-112930.jpg'
+    photo = 'images/TestDevice/pic_taken/31082023-141641.jpg'
     meter_number = show_text(photo, bucket)
     print("text detected: " + str(meter_number))
     if not meter_number == "":
