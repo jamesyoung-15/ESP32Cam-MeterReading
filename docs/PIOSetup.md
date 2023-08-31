@@ -19,6 +19,7 @@ cd kolour-think-tank-internship/ESP32Cam-AWS-Meter-Reading
 pio run --target upload --upload-port /dev/ttyUSB0 && pio device monitor
 ```
 
+5. 
 
 
 #### With GUI (eg. VSCode)
