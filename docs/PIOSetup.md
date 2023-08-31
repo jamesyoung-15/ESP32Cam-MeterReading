@@ -25,4 +25,4 @@ pio run --target upload --upload-port /dev/ttyUSB0 && pio device monitor
 #### With GUI (eg. VSCode)
 2. Open the `kolour-think-tank-internship/ESP32Cam-AWS-Meter-Reading` folder with VSCode or whatever IDE you're using with PlatformIO.
 
-3. 
+3. Click the PlatformIO icon on the left activity bar. Press `build` and then `upload and monitor`.
