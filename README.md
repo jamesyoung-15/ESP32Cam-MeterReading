@@ -5,7 +5,9 @@ My internship project at [Kolour Think Tank](https://www.kolourthinktank.com/) w
 Todo
 
 ## Overview
-For more details see [documentation](./docs/Documentation.md).
+### Project Architecture
+![](./assets/diagrams/watermeter-project-diagram.png)
+
 ### Hardware Requirements
 - ESP32-CAM (Most modules should work)
 - ESP32-CAM-MB or USB to TTL (For uploading code)
@@ -15,8 +17,7 @@ For more details see [documentation](./docs/Documentation.md).
     - Arduino-Libraries: Arduino-ESP32, ArduinoJSON, ESPAsyncWebServer
 - AWS Services: Rekognition, Lambda, API Gateway, S3, DynamoDB
 
-### Project Architecture
-![](./assets/diagrams/watermeter-project-diagram.png)
+For more details see [documentation](./docs/Documentation.md).
 
 
 
