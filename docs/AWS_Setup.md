@@ -100,4 +100,9 @@ The second function is triggered when the image is stored in the S3 Bucket. Here
 9. Press `Add Permissions` and `Attach Policies`, then search and select `AmazonDynamoDBFullAccess` and add it. Also search and add `AmazonRekognitionFullAccess`. This will give Lambda permission to access these services.
 
 ## Create API Gateway for Acessing DynamoDB
+1. Go to API Gateway service and press `Create API`. Choose `RestAPI` and press `build`. Make sure protocol is REST and choose New API. Give the API a name and press `Create API`. You should be redirected to resources page.
 
+2. Under `Actions` click `Create Resource` and give it the name `alldata` (you can change this but you have to change the Lambda code).
+If you just want a way to access all data (rather than only access one specific datapoint by ID), then you only need to this resource.
+
+## Lambda Code integrating API Gateway for Viewing DynamoDB
