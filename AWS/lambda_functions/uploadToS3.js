@@ -6,20 +6,18 @@ let s3 = new AWS.S3();
 
 // main lambda function
 exports.handler = (event, context, callback) => {
+    // let Folder = event.S3Folder;
     // Obtain the crop data from url entered by ESP32-CAM
     let rotateAngle = parseInt(event.rotateDegrees);
-    // let Folder = event.S3Folder;
-    let Filename = getFormattedTime();
     let x = parseInt(event.cropLeft);
     let y = parseInt(event.cropTop);
     let width = parseInt(event.cropWidth);
     let height = parseInt(event.cropHeight);
-
+    let Filename = getFormattedTime();
     // Get the encoded image
     let encodedImage = event.imageData;
     // console.log("Event is ", event);
     // console.log("Copying event body of ", encodedImage);
-    
 
     console.log(`Cropping dimension: x = ${x}, y = ${y}, height = ${height}, width = ${width}`)
 
@@ -56,8 +54,6 @@ exports.handler = (event, context, callback) => {
         });
         
     })
-
-    
 };
 
 // For getting current time, used to generate filename
@@ -82,5 +78,4 @@ let getFormattedTime = () => {
     let fileName = newDateFormat + "-" + newTimeFormat;
     // console.log(fileName);
     return fileName;
-    
 }
