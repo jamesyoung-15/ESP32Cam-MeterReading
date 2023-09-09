@@ -181,7 +181,7 @@ void cameraConfig() {
 }
 
 void sendPhotoToS3(){
-        // check wifi
+    // check wifi
     if(WiFi.status() != WL_CONNECTED){
             Serial.println("Cannot send: Not connected to Wifi!");
             return;

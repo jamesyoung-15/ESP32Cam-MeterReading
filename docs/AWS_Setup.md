@@ -2,7 +2,7 @@
 Make sure you have an AWS account. If you only have a root account, it is recommended to create an IAM user instead of using root. Also for this project I used US-East-1 region (N. Virginia), for easy setup make sure these services are in the same region.
 
 ## Create AWS IAM User (if only have root)
-Skip this if you already have an IAM User (but make sure you have correct permissions to Rekognition, Lambda, API Gateway, S3, DynamoDB) or want to use root.
+Skip this if you already have an IAM User (but make sure you have correct permissions to Rekognition, Lambda, API Gateway, S3, DynamoDB) or really need to use root (not recommended for security reasons).
 
 This is for quick setup, for better setup see [AWS Guide](https://docs.aws.amazon.com/IAM/latest/UserGuide/id_users_create.html).
 
@@ -14,7 +14,9 @@ This is for quick setup, for better setup see [AWS Guide](https://docs.aws.amazo
 
 4. Click `Create Group`, enter a user group name, then for quick setup click `AdministratorAccess`. If you want more control over user permission only give permissions to services used in this project (Rekognition, Lambda, API Gateway, S3, DynamoDB).
 
-5. Click next and create user. Download the credentials.
+5. Click next and create user. Don't forget the password (can download credentials if needed).
+
+6. Logout and login to your newly created IAM user.
 
 ## Create S3 Bucket
 Go to S3 Bucket. Press `Create a Bucket`, give it a name, select a region, and then scroll down and press `create bucket`. You need to provide the Bucket name later in the Lambda code below.

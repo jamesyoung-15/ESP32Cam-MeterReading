@@ -87,6 +87,17 @@ def lambda_handler(event, context):
         # Change 'water-meter-images-test' to your S3 Bucket
         s3.upload_fileobj(BytesIO(img_bytes), 'water-meter-images-test', filename) 
 
+        # Sort the dictionary of digits from left to right position
+        print("Unsorted stored digit dictionary: ")
+        for left, digit in digit_info.items():
+            print(left, digit)
+        digit_info = dict(sorted(digit_info.items()))
+        print("Sorted stored digit dictionary: ")
+        for left, digit in digit_info.items():
+            print(left, digit)
+
+        digit_info = dict(sorted(digit_info.items()))
+
         # store digits into number
         number = ""
         for num in digit_info.values():

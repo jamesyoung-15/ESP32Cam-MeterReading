@@ -1,4 +1,5 @@
 {
+    "S3Folder": "$input.params('folder')",
     "cropLeft": "$input.params('cropleft')",
     "cropTop": "$input.params('croptop')",
     "cropWidth": "$input.params('cropwidth')",

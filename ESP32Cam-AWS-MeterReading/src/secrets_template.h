@@ -2,8 +2,8 @@
 #define SECRETS_H
 
 /* Wifi Password */
-#define WIFI_SSID "SSID"
-#define WIFI_PASSWD "PASSWORD"
+const char* WIFI_SSID = "SSID";
+const char* WIFI_PASSWD = "PASSWORD";
 
 // S3 Bucket folder name to store image in
 const char* folderName = "TestDevice";

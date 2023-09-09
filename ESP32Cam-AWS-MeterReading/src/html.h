@@ -235,6 +235,10 @@ const char index_html[] PROGMEM = R"rawliteral(
                 } catch (error) {
                     console.error("There has been a problem with your fetch operation:", error);
                 }
+                // Reset rotation
+                document.getElementById("rotate-degrees").innerHTML = '0';
+                rotateSlider.value = 0;
+                cropper.rotateTo(rotateSlider.value);
                 capturePhoto.textContent = "Take New Photo";
                 capturePhoto.setAttribute("aria-busy", "false");
                 
