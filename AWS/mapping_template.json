@@ -4,5 +4,5 @@
     "cropWidth": "$input.params('cropwidth')",
     "cropHeight": "$input.params('cropheight')",
     "rotateDegrees": "$input.params('rotation')",
-    "base64Image": "$input.body"
+    "imageData": "$input.body"
 }

@@ -16,7 +16,7 @@ exports.handler = (event, context, callback) => {
     let height = parseInt(event.cropHeight);
 
     // Get the encoded image
-    let encodedImage = event.base64Image;
+    let encodedImage = event.imageData;
     // console.log("Event is ", event);
     // console.log("Copying event body of ", encodedImage);
     

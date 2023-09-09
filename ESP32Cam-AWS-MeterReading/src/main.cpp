@@ -211,7 +211,7 @@ void sendPhotoToS3(){
 
         Serial.println("Sending to AWS");
         // take and get encoded image, get formatted date to use as filename, package it as json, send to aws api
-        String url = String(AWS_REST_API) + "/" + String(folderName) + "/" + String(cropLeft) + "/" + String(cropTop) + "/" + String(cropWidth) + "/" + String(cropHeight) + "/" + String(rotateAngle);
+        String url = String(AWS_REST_API) + "/" + String(cropLeft) + "/" + String(cropTop) + "/" + String(cropWidth) + "/" + String(cropHeight) + "/" + String(rotateAngle);
         http.begin(client, url);
         Serial.println(url);
         http.addHeader("Content-Type", "image/jpg");
