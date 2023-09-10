@@ -23,7 +23,7 @@
 
 // Take Photo every interval
 unsigned long picturePreviousMillis = 0;
-unsigned long pictureInterval = 60000*4;
+unsigned long pictureInterval = 60000;
 
 // Alert variables
 boolean takeNewPhoto = false;

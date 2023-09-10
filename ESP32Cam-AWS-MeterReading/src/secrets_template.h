@@ -31,7 +31,7 @@ const char* folderName = "TestDevice";
 
 /* AWS API */
 
-const char AWS_REST_API[] = "https://nfjz3sst4e.execute-api.us-east-1.amazonaws.com/prod/";
+const char AWS_REST_API[] = " https://pzi1wv89f9.execute-api.us-east-1.amazonaws.com/test";
 
 const char AWS_API_CERT[] =
 "-----BEGIN CERTIFICATE-----\n"

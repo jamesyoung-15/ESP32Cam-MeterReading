@@ -23,7 +23,7 @@
 
 // Take Photo every interval
 unsigned long picturePreviousMillis = 0;
-unsigned long pictureInterval = 60000*2;
+unsigned long pictureInterval = 60000;
 
 // Alert variables
 boolean takeNewPhoto = false;
@@ -181,7 +181,7 @@ void cameraConfig() {
 }
 
 void sendPhotoToS3(){
-        // check wifi
+    // check wifi
     if(WiFi.status() != WL_CONNECTED){
             Serial.println("Cannot send: Not connected to Wifi!");
             return;
@@ -211,7 +211,7 @@ void sendPhotoToS3(){
 
         Serial.println("Sending to AWS");
         // take and get encoded image, get formatted date to use as filename, package it as json, send to aws api
-        String url = String(AWS_REST_API) + "/" + String(folderName) + "/" + String(cropLeft) + "/" + String(cropTop) + "/" + String(cropWidth) + "/" + String(cropHeight) + "/" + String(rotateAngle);
+        String url = String(AWS_REST_API) + "/" + String(cropLeft) + "/" + String(cropTop) + "/" + String(cropWidth) + "/" + String(cropHeight) + "/" + String(rotateAngle);
         http.begin(client, url);
         Serial.println(url);
         http.addHeader("Content-Type", "image/jpg");
@@ -275,7 +275,7 @@ void beginServer(){
     server.on("/send-aws", HTTP_GET, [](AsyncWebServerRequest * request) {
         request->send_P(200, "text/plain", "Sending to AWS");
         sendToAWS = true;
-        Serial.println("Start sending to AWS in intervals");
+        Serial.println("Start test sending to AWS");
     });
 
     server.on("/cropData", HTTP_GET, [](AsyncWebServerRequest * request) {
