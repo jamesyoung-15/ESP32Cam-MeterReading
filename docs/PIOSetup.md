@@ -1,4 +1,6 @@
 # PlatformIO Project Instructions
+Alternatively check [video](https://youtu.be/pHNRqF-2EDg) and check video description for timestamp of PlatformIO setup.
+
 1. Make sure to have either PlatformIO or PlatformIO CLI installed. Installation and setup of PlatformIO for VSCode is [here](https://platformio.org/install/ide?install=vscode). 
 
 1. Clone this repository. If not comfortable with CLI, then just press [this](https://github.com/jamesyoung-15/kolour-think-tank-internship/archive/refs/head/main.zip) to repository download as ZIP.

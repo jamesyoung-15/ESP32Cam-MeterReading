@@ -1,10 +1,5 @@
 # Water Meter Reading w/ ESP32-Camera
 This on-going project attempts to use image recognition to obtain water meter reading from images taken from an ESP32-Camera.
-
-## Demo
-
-API Link to View DynamoDB Entries: [Link](https://i8ave7ovua.execute-api.us-east-1.amazonaws.com/testv1/watermeter/alldata)
-
 ## Documentation
 ### Project Details
 - Hardware: ESP32-Camera
@@ -13,7 +8,7 @@ API Link to View DynamoDB Entries: [Link](https://i8ave7ovua.execute-api.us-east
 
 
 ### Setup on Arduino IDE
-Files and instructions are in [here](./ArduinoIDE/).
+Files and instructions are in [here](./ArduinoIDE/README.md).
 
 ### Platformio Setup (tested on Linux)
 - Prequisites: Make sure to either have PlatformIO CLI or PlatformIO IDE or VSCode PlatformIO plugin.

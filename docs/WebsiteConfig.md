@@ -1,4 +1,6 @@
 # Website Config
+Check [video](https://youtu.be/pHNRqF-2EDg) for how I used it.
+
 
 ## Instructions
 - After uploading the code with whichever framework, the Serial Monitor will display the IP address of the device if successfully connected to Wi-Fi. Go to that IP address in a web browser (eg. `http://192.168.1.29`). Make sure it is HTTP instead of HTTPS. Also make sure you are connected to the same network as the ESP32-CAM.

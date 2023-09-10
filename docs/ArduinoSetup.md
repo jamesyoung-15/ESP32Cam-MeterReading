@@ -1,5 +1,5 @@
 # Instructions for ArduinoIDE
-Make sure to have [ArduinoIDE](https://www.arduino.cc/en/software) installed.
+Make sure to have [ArduinoIDE](https://www.arduino.cc/en/software) installed. Alternatively check [video](https://youtu.be/pHNRqF-2EDg) and check video description for timestamp of Arduino setup.
 
 ## Setup on Arduino IDE
 1. Make sure you have ESP32 boards added to Arduino IDE. If not here is [how](https://docs.espressif.com/projects/arduino-esp32/en/latest/installing.html) to do it. Then make sure to have the following libraries installed: `ArduinoJSON`, `ESPAsyncWebSrv`. Then select the correct board and port.
