@@ -88,9 +88,9 @@ def lambda_handler(event, context):
         s3.upload_fileobj(BytesIO(img_bytes), 'water-meter-images-test', filename) 
 
         # Sort the dictionary of digits from left to right position
-        print("Unsorted stored digit dictionary: ")
-        for left, digit in digit_info.items():
-            print(left, digit)
+        # print("Unsorted stored digit dictionary: ")
+        # for left, digit in digit_info.items():
+        #     print(left, digit)
         digit_info = dict(sorted(digit_info.items()))
         print("Sorted stored digit dictionary: ")
         for left, digit in digit_info.items():

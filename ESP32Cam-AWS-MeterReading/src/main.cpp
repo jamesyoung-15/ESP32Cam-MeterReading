@@ -275,7 +275,7 @@ void beginServer(){
     server.on("/send-aws", HTTP_GET, [](AsyncWebServerRequest * request) {
         request->send_P(200, "text/plain", "Sending to AWS");
         sendToAWS = true;
-        Serial.println("Start sending to AWS in intervals");
+        Serial.println("Start test sending to AWS");
     });
 
     server.on("/cropData", HTTP_GET, [](AsyncWebServerRequest * request) {

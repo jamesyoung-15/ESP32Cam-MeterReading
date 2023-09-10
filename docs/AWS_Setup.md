@@ -12,7 +12,7 @@ This is for quick setup, for better setup see [AWS Guide](https://docs.aws.amazo
 
 3. Enter a username, and select the `Provide user access to the – AWS Management Console` button. For quicker setup, click `I want to create an IAM User`. Below you can configure whether to have custom password and so on. Click next when done.
 
-4. Click `Create Group`, enter a user group name, then for quick setup click `AdministratorAccess`. If you want more control over user permission only give permissions to services used in this project (Rekognition, Lambda, API Gateway, S3, DynamoDB).
+4. Click `Create Group`, enter a user group name, then for quick setup click `AdministratorAccess`. For better security with more control over user permission only give permissions to services used in this project (Rekognition, Lambda, API Gateway, S3, DynamoDB).
 
 5. Click next and create user. Don't forget the password (can download credentials if needed).
 
