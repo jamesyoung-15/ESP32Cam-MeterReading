@@ -3,7 +3,7 @@ My internship project at [Kolour Think Tank](https://www.kolourthinktank.com/) w
 
 Documentation [here](./docs/Documentation.md).
 
-![](./assets/images/website-example.png)
+![](./assets/images/web-demo.png)
 
 ## Demo
 Video: 
