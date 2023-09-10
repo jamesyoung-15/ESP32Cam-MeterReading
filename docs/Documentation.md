@@ -40,7 +40,7 @@ Click here for for more [detailed instructions and demo](./WebsiteConfig.md).
 Not fully complete, but [here](./CodeGuide.md).
 
 ## Contact
-Any problems feel free to contact me.
+Any problems feel free to contact me (Whatsapp, Email, whatever). Happy to help if needed but probably better off just reworking this project if you find it bad/confusing.
 
 ## Resources Used
 - Lambda Layer:
