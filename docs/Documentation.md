@@ -1,5 +1,5 @@
 # Documentation for ESP32-Camera Meter Reading Project
-Documentation and usage guide for ESP32-Camera Meter Reading Project.
+Documentation and usage guide for ESP32-Camera Meter Reading Project. For video on how to setup click [video guide](https://youtu.be/pHNRqF-2EDg).
 
 ## Requirements
 ### Hardware

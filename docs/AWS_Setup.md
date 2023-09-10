@@ -1,5 +1,5 @@
 # AWS Setup
-Make sure you have an AWS account. If you only have a root account, it is recommended to create an IAM user instead of using root. Also for this project I used US-East-1 region (N. Virginia), for easy setup make sure these services are in the same region.
+Make sure you have an AWS account. If you only have a root account, it is recommended to create an IAM user instead of using root. Also for this project I used US-East-1 region (N. Virginia), for easy setup make sure these services are in the same region. See [video guide](https://youtu.be/pHNRqF-2EDg) if not clear.
 
 ## Create AWS IAM User (if only have root)
 Skip this if you already have an IAM User (but make sure you have correct permissions to Rekognition, Lambda, API Gateway, S3, DynamoDB) or really need to use root (not recommended for security reasons).
