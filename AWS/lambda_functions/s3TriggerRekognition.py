@@ -96,8 +96,6 @@ def lambda_handler(event, context):
         for left, digit in digit_info.items():
             print(left, digit)
 
-        digit_info = dict(sorted(digit_info.items()))
-
         # store digits into number
         number = ""
         for num in digit_info.values():
