@@ -6,7 +6,8 @@ aws.config.update({
 
 const dynamodb = new aws.DynamoDB.DocumentClient();
 
-const dynamodbTableName = 'water-meter-db-restapi'
+
+const dynamodbTableName = 'water-meter-db-restapi' //CHANGE to your db 
 const singleDataPath = '/watermeter/data'
 const allDataPath = '/watermeter/alldata'
 
