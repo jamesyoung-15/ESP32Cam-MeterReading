@@ -1,15 +1,12 @@
 # ESP32CAM Meter Reading Project
 My internship project at [Kolour Think Tank](https://www.kolourthinktank.com/) where I worked on reading a digital utility meter (mainly focused on water meter) using an ESP32-Camera and AWS Rekognition and storing the readings in AWS DynamoDB. 
 
-Documentation [here](./docs/Documentation.md) alongside setup [video guide]().
+Documentation [here](./docs/Documentation.md) alongside setup [video guide](https://youtu.be/pHNRqF-2EDg).
 
 ![](./assets/images/web-demo.png)
 
 ## Demo
-Demo Video:
-
-Setup Video:
-
+[Video](https://youtu.be/pHNRqF-2EDg)
 ## Overview
 ### Project Architecture
 ![](./assets/diagrams/watermeter-project-diagram.png)
