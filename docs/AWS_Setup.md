@@ -101,6 +101,8 @@ The second function is triggered when the image is stored in the S3 Bucket. Here
 
 9. Press `Add Permissions` and `Attach Policies`, then search and select `AmazonDynamoDBFullAccess` and add it. Also search and add `AmazonRekognitionFullAccess`. This will give Lambda permission to access these services.
 
+10. In functions overview tab, expand it and click `Add trigger`. Select S3 in source and  select your bucket where you will store your images. Then in event you can leave it as default (should be `All object create events`) and in prefix enter `images/pic_taken/` and then in suffix enter `.jpg`. Once finished create the trigger.
+
 ## Create API Gateway for Acessing DynamoDB
 1. Go to API Gateway service and press `Create API`. Choose `RestAPI` and press `build`. Make sure protocol is REST and choose New API. Give the API a name and press `Create API`. You should be redirected to resources page.
 
