@@ -36,6 +36,9 @@ After uploading the code with whichever framework, the Serial Monitor will displ
 
 Click here for for more [detailed instructions and demo](./WebsiteConfig.md).
 
+## Improvements/Code Explanation
+Not fully complete, but [here](./CodeGuide.md).
+
 ## Contact
 Any problems feel free to contact me.
 
@@ -52,8 +55,9 @@ Any problems feel free to contact me.
         - [Draw boundary boxes](https://docs.aws.amazon.com/rekognition/latest/dg/images-displaying-bounding-boxes.html)
         - [Trigger Rekognition from S3](https://docs.aws.amazon.com/rekognition/latest/dg/images-lambda-s3-tutorial.html)
         - [Store Rekogniton result to DynamoDB](https://docs.aws.amazon.com/rekognition/latest/dg/storage-tutorial.html)
-    - API for DynamoDB Material:
+    - Creating API for DynamoDB Material:
         - [Building Serverless API w/ DynamoDB, API Gateway, Lambda](https://www.youtube.com/watch?v=Ut5CkSz6NR0&t=271s)
-    - API for Accepting Images:
+    - Creating API for Accepting Images:
         - [ESP32 Cam To AWS S3 Upload](https://www.youtube.com/watch?v=FIPkU-gx_kU&t=227s)
         - [Sharp Documentation](https://sharp.pixelplumbing.com/)
+    
